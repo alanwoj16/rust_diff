@@ -1,0 +1,10 @@
+[package]
+name = "rust_diff"
+version = "0.1.0"
+authors = ["Michael Donovan <mbdono56@gmail.com>"]
+
+[lib]
+name = "libdiff"
+path = "src/libdiff.rs"
+
+[dependencies]
