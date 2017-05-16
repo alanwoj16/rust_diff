@@ -40,7 +40,6 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<
             table[i].push(0);
         }
     }
-    println!("{}, {}", table.len(), table[0].len());
     for i in 1..from.len() {
         for j in 1..to.len() {
             if from[i - 1] == to[j - 1] {
