@@ -1,7 +1,7 @@
 [package]
 name = "rust_diff"
 version = "0.1.0"
-authors = ["Michael Donovan <mbdono56@gmail.com>"]
+authors = ["Michael Donovan <michaeldonovan@u.northwestern.edu>", "Alan Wojciechowski <alanwojciechowski2017@u.northwestern.edu>"]
 
 [lib]
 name = "libdiff"
