@@ -24,13 +24,8 @@ enum DiffItem<'a, T: 'a + PartialEq> {
 
 // fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> DiffIterator<'a, T> { ... }
 
-// fn longest_common_sequence<'a, T: PartialEq> (a: &'a [T], b: &'a [T]) -> &'a [T] {
-//     if a.len() <= 0 || b.len() <= 0 {
-//         &[]
-//     }
 
-// }
-
+/// Build a longest common subsequence table (necessary for creating the diff)
 pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
     let mut table: Vec<Vec<usize>> = Vec::with_capacity(from.len() + 1);
     // could probably do this with iterators or map()
@@ -43,7 +38,7 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<
     for i in 1..from.len() {
         for j in 1..to.len() {
             if from[i - 1] == to[j - 1] {
-                table[i][j] = table[i - 1][j - 1] + 1
+                table[i][j] = table[i - 1][j - 1] + 1;
             } else {
                 table[i][j] = cmp::max(table[i][j - 1], table[i - 1][j]);
             }
@@ -52,13 +47,13 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<
     table
 }
 
-
+/// Prints a diff given two slices and the corresponding LCS table
 pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
-                                          from: &'a [T],
-                                          to: &'a [T],
-                                          i: usize,
-                                          j: usize) {
-    
+                                              from: &'a [T],
+                                              to: &'a [T],
+                                              i: usize,
+                                              j: usize) {
+
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         print_diff(table, from, to, i - 1, j - 1);
         println!(" {}", from[i - 1]);
@@ -70,7 +65,6 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
         println!("- {}", from[i - 1]);
     }
 }
-
 #[cfg(test)]
 pub mod test {
     use super::{print_diff, build_lcs_table};
