@@ -1,6 +1,6 @@
 use std::cmp;
 use std::fmt::Display;
-
+#[allow(dead_code)]
 enum DiffItem<'a, T: 'a + PartialEq> {
     Add { start: usize, lines: &'a [T] },
     Delete { start: usize, len: usize },
@@ -31,12 +31,12 @@ enum DiffItem<'a, T: 'a + PartialEq> {
 
 // }
 
-fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
+pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
     let mut table: Vec<Vec<usize>> = Vec::with_capacity(from.len() + 1);
     // could probably do this with iterators or map()
     for i in 0..from.len() + 1 {
         table.push(Vec::with_capacity(to.len() + 1));
-        for j in 0..to.len() + 1 {
+        for _ in 0..to.len() + 1 {
             table[i].push(0);
         }
     }
@@ -54,7 +54,7 @@ fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usiz
 }
 
 
-fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
                                           from: &'a [T],
                                           to: &'a [T],
                                           i: usize,
@@ -62,13 +62,13 @@ fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         print_diff(table, from, to, i - 1, j - 1);
-        println!(" {}", from[i]);
-    } else if (j > 0 && (i == 0 || table[i - 1][j - 2] >= table[i - 2][j - 1])) {
+        println!(" {}", from[i - 1]);
+    } else if j > 0 && (i == 0 || table[i - 1][j - 2] >= table[i - 2][j - 1]) {
         print_diff(table, from, to, i, j - 1);
-        println!("+ {}", to[j - 1]);
-    } else if (i > 0 && (j == 0 || table[i - 1][j - 2] < table[i - 2][j - 1])) {
+        println!("+ {}", to[j - 2]);
+    } else if i > 0 && (j == 0 || table[i - 1][j - 2] < table[i - 2][j - 1]) {
         print_diff(table, from, to, i - 1, j);
-        println!("+ {}", from[i - 1]);
+        println!("+ {}", from[i - 2]);
     }
 }
 

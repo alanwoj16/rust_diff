@@ -7,4 +7,8 @@ authors = ["Michael Donovan <mbdono56@gmail.com>"]
 name = "libdiff"
 path = "src/libdiff.rs"
 
+[[bin]]
+name = "diff"
+path = "src/bin/diff.rs"
+
 [dependencies]
