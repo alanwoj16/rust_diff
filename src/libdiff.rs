@@ -58,16 +58,16 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
                                           to: &'a [T],
                                           i: usize,
                                           j: usize) {
-
+    
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         print_diff(table, from, to, i - 1, j - 1);
         println!(" {}", from[i - 1]);
-    } else if j > 0 && (i == 0 || table[i - 1][j - 2] >= table[i - 2][j - 1]) {
+    } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
         print_diff(table, from, to, i, j - 1);
-        println!("+ {}", to[j - 2]);
-    } else if i > 0 && (j == 0 || table[i - 1][j - 2] < table[i - 2][j - 1]) {
+        println!("+ {}", to[j - 1]);
+    } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
         print_diff(table, from, to, i - 1, j);
-        println!("+ {}", from[i - 2]);
+        println!("- {}", from[i - 1]);
     }
 }
 
