@@ -65,15 +65,4 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
         println!("- {}", from[i - 1]);
     }
 }
-#[cfg(test)]
-pub mod test {
-    use super::{print_diff, build_lcs_table};
 
-    #[test]
-    fn test1() {
-        let from = vec!["this", "is", "test"];
-        let to = vec!["this", "is", "a", "test"];
-        let table = build_lcs_table(&from, &to);
-        print_diff(&table, &from, &to, from.len(), to.len());
-    }
-}
