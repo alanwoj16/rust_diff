@@ -21,34 +21,19 @@ enum DiffItem<'a, T: 'a + PartialEq> {
 }
 
 #[allow(dead_code)]
-struct DiffIterator<'a, T> {
+struct DiffIterator<'a, T: 'a + PartialEq> {
     
     items: &'a Vec<DiffItem<'a,T>>,
 }
 
 #[allow(dead_code)]
-impl <'a, T> DiffIterator<'a, T>{
+impl <'a, T: 'a + PartialEq> DiffIterator<'a, T>{
 
-    fn new() -> Self{
-        DiffIterator{items: Vec::new()}
+    fn new_from_list(diffitems: &'a Vec<DiffItem<'a,T>>) -> Self{
+
+        DiffIterator {items: diffitems}
+        
     }
-
-    //fn new_from_list(diffitems: Vec<DiffItem<T>>) -> Self{
-
-        //let mut diff_iter = DiffIterator{items: Vec::<DiffItem>::new()};
-
-        //for diff_item in diffitems{
-        //    diff_iter.push(diff_item);
-	//}
-
-	//diff_iter
-    //}
-
-    //fn add_diffItem(&mut self, ditem: DiffItem<T>){
-    //    self.push(DiffItem::<T>);
-    //}
-
-    
 }
 
 // impl<'a, T> Iterator for DiffIterator<'a, T> {
@@ -57,8 +42,30 @@ impl <'a, T> DiffIterator<'a, T>{
 
 //     }
 // }
+#[allow(dead_code)]
+pub fn diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+				    from: &'a [T], 
+				    to: &'a [T],
+				    i: usize,
+				    j: usize,
+				    empty: &mut Vec<String>) {
+    
+ 
+    if i > 0 && j > 0 && from[i-1] == to[j-1]{
+        diff(table, from, to , i-1, i-1, empty);
+        empty.push(" ".to_string());	
+    } else if j > 0 && (i == 0 ||table[i][j-1] >= table[i-1][j]) {
+        diff(table, from, to, i, j-1, empty);
+	empty.push("+".to_string());
+    } else if i > 0 && (j == 0 || table[i][j-1] < table[i-1][j]){
+        diff(table, from, to, i-1, j, empty);
+	empty.push("-".to_string());
+    }
+    
 
-// fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> DiffIterator<'a, T> { ... }
+
+
+}
 
 
 /// Build a longest common subsequence table (necessary for creating the diff)
@@ -83,7 +90,7 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<
     table
 }
 
-/// Prints a diff given two slices and the corresponding LCS table
+// Prints a diff given two slices and the corresponding LCS table
 pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
                                               from: &'a [T],
                                               to: &'a [T],
@@ -100,15 +107,8 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
         print_diff(table, from, to, i - 1, j);
         println!("- {}", from[i - 1]);
     }
+
+    
 }
 
-//pub fn diff<a' T: PartialEq + Display> (table: &Vec<Vec<usize>>,
-//					from: &'a [T],
-//					to: &'a [T],
-//					i: usize,
-//					j: usize,
-//					holder: &Vec<) -> Vec<DiffItem>{
 
-
-
-					

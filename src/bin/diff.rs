@@ -18,7 +18,10 @@ fn main() {
     let lines_b = read_lines(BufReader::new(file_b));
 
     let table = build_lcs_table(&lines_a, &lines_b);
-    print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
+    let mut empty: Vec<String> = Vec::new();
+    libdiff::diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len(), &mut empty);
+
+    println!("{:?}", empty);
 }
 
 /// Read from a reader to a Vec<String> of lines
