@@ -2,27 +2,41 @@ use std::cmp;
 use std::fmt::Display;
 #[allow(dead_code)]
 enum DiffItem<'a, T: 'a + PartialEq> {
-    Add { startDoc1: usize, 
-    	  startDoc2: usize,
-	  endDoc2: usize,
+    Add { start_doc1: usize, 
+    	  start_doc2: usize,
+	  end_doc2: usize,
 	  lines: &'a [T] },
-    Delete { startDoc1: usize,
-             endDoc1: usize,
-	     startDoc2: usize,
+    Delete { start_doc1: usize,
+             end_doc1: usize,
+	     start_doc2: usize,
 	     lines: &'a [T] },
     Change {
-        startDoc1: usize,
-	endDoc1: usize,
-	startDoc2: usize,
-	endDoc2: usize,
+        start_doc1: usize,
+	end_doc1: usize,
+	start_doc2: usize,
+	end_doc2: usize,
         from: &'a [T],
         to: &'a [T],
     },
 }
 
-// struct DiffIterator<'a, T: 'a + PartialEq> {
-//     items: &'a vec<DiffItem<
-// }
+#[allow(dead_code)]
+struct DiffIterator<'a, T> {
+    
+    items: &'a Vec<DiffItem<'a,T>>,
+}
+
+#[allow(dead_code)]
+impl <'a, T> DiffIterator<'a, T>{
+
+    fn new() -> Self{
+        DiffIterator{items: Vec<DiffItem<'a, T>::new()}
+    }
+
+    fn add_diffItem(&mut self, ditem: DiffItem<'a, T){
+        self.push(DiffItem<'a, T>)
+    }
+}
 
 // impl<'a, T> Iterator for DiffIterator<'a, T> {
 //     type Item = DiffItem<'a, T>;
