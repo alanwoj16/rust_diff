@@ -30,12 +30,25 @@ struct DiffIterator<'a, T> {
 impl <'a, T> DiffIterator<'a, T>{
 
     fn new() -> Self{
-        DiffIterator{items: Vec<DiffItem<'a, T>::new()}
+        DiffIterator{items: Vec::new()}
     }
 
-    fn add_diffItem(&mut self, ditem: DiffItem<'a, T){
-        self.push(DiffItem<'a, T>)
-    }
+    //fn new_from_list(diffitems: Vec<DiffItem<T>>) -> Self{
+
+        //let mut diff_iter = DiffIterator{items: Vec::<DiffItem>::new()};
+
+        //for diff_item in diffitems{
+        //    diff_iter.push(diff_item);
+	//}
+
+	//diff_iter
+    //}
+
+    //fn add_diffItem(&mut self, ditem: DiffItem<T>){
+    //    self.push(DiffItem::<T>);
+    //}
+
+    
 }
 
 // impl<'a, T> Iterator for DiffIterator<'a, T> {
@@ -89,3 +102,13 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
     }
 }
 
+//pub fn diff<a' T: PartialEq + Display> (table: &Vec<Vec<usize>>,
+//					from: &'a [T],
+//					to: &'a [T],
+//					i: usize,
+//					j: usize,
+//					holder: &Vec<) -> Vec<DiffItem>{
+
+
+
+					
