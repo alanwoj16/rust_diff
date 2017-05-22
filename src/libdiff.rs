@@ -2,10 +2,19 @@ use std::cmp;
 use std::fmt::Display;
 #[allow(dead_code)]
 enum DiffItem<'a, T: 'a + PartialEq> {
-    Add { start: usize, lines: &'a [T] },
-    Delete { start: usize, len: usize },
+    Add { startDoc1: usize, 
+    	  startDoc2: usize,
+	  endDoc2: usize,
+	  lines: &'a [T] },
+    Delete { startDoc1: usize,
+             endDoc1: usize,
+	     startDoc2: usize,
+	     lines: &'a [T] },
     Change {
-        start: usize,
+        startDoc1: usize,
+	endDoc1: usize,
+	startDoc2: usize,
+	endDoc2: usize,
         from: &'a [T],
         to: &'a [T],
     },
