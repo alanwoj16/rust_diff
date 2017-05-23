@@ -20,7 +20,7 @@ fn main() {
     
 
     let table = build_lcs_table(&lines_a, &lines_b);
-    //print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
+    print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
     diff_init(&table, &lines_a, &lines_b);
     
     
