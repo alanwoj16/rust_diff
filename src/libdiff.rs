@@ -48,66 +48,130 @@ impl <'a, T: 'a + PartialEq> DiffIterator<'a, T>{
 //     }
 // }
 
-#[allow(dead_code)]
-pub fn diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
-				    from: &'a [T], 
-				    to: &'a [T],
-				    i: usize,
-				    j: usize,
-				    empty: &mut Vec<String>) {
+pub fn diff_init<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+                                              from: &'a [T],
+                                              to: &'a [T]){
     
- 
-    if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
-        diff(table, from, to, i - 1, j - 1, empty);
-        check_diff(empty);
-        empty.push("n".to_string());
-    } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
-        diff(table, from, to, i, j - 1, empty);
-        empty.push("+".to_string());
-    } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
-        diff(table, from, to, i - 1, j, empty);
-        empty.push("-".to_string());
-    }
-
-    if i == from.len() && j == to.len() && !empty.is_empty(){ //if last edit was add or delete
-        check_diff(empty);
-    }
+    let mut diffs: Vec<String> = vec![];
+    make_diffs(table, from, to, from.len(), to.len(), &mut diffs);
+    let mut index1 = 0;
+    let mut index2 = 0;
+    convert_to_diffitems(to, from, &mut index1, &mut index2,  &mut diffs, );
+    
 }
 
-///checks to see which diff item to add
-pub fn check_diff(empty: &mut Vec<String>) -> DiffItem<T> {
 
-    let vec = vec!["filler"];
+pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
+                                              to: &'a [T],
+                                              i: &mut usize,
+                                              j: &mut usize,
+                                              diffs: &mut Vec<String>){
+
+    let mut edit_tracker: Vec<String> = vec![];
+
+    for edit in diffs{
+
+        edit_tracker.push(edit.clone());
+        if *edit == "s".to_string(){
+            check_diff(&mut edit_tracker);
+            if *i > 0 && *j > 0{
+                println!("{},{}",i,j);
+            }
+            
+            *i += 1;
+            *j += 1;
+        }
+        else if *edit == "-".to_string(){
+            *i += 1;
+        }
+        else if *edit == "+".to_string(){
+            *j +=1;
+        }
+        //println!("{}",edit);
+        //println!("{} , {}", i,j);
+    }
+
+    check_diff(&mut edit_tracker);
+    println!("{},{}",i,j);
+
+
+    //for x in edit_tracker{
+    //    println!("{}",x);
+    //}
+
+}
+    
+pub fn check_diff(empty: &mut Vec<String>) {
+
 
     if !empty.contains(&"+".to_string()) && empty.contains(&"-".to_string()){
-        let delete = DiffItem::Delete {start_doc1: 0,
-                                       end_doc1: 0,
-                                       start_doc2: 0,
-                                       lines: &vec[..]};
+        println!{"d"};
         empty.drain(..);
-        delete
+        
 
     } else if !empty.contains(&"-".to_string()) && empty.contains(&"+".to_string()){
-        let add = DiffItem::Add{start_doc1: 0, 
-                                start_doc2: 0,
-                                end_doc2: 0,
-                                lines: &vec[..]};
+        println!("a");
         empty.drain(..);
-        add
+        
         
     } else if empty.contains(&"+".to_string()) && empty.contains(&"-".to_string()){ 
-        let change = DiffItem::Change{start_doc1: 0,
-                                      end_doc1: 0,
-                                      start_doc2: 0,
-                                      end_doc2: 0,
-                                      from: &vec[..],
-                                      to: &vec[..]};
+        println!("c");
         empty.drain(..);
-        change
-
     }
 
 }
+
+pub fn make_diffs<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+                                              from: &'a [T],
+                                              to: &'a [T],
+                                              i: usize,
+                                              j: usize,
+                                              diffs: &mut Vec<String>) {
+
+    if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
+        make_diffs(table, from, to, i - 1, j - 1, diffs);
+        //diffs.push(format!("s {}", from[i - 1]));
+        diffs.push("s".to_string());
+    } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
+        make_diffs(table, from, to, i, j - 1, diffs);
+        //diffs.push(format!("+ {}", to[j - 1]));
+        diffs.push("+".to_string());
+    } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
+        make_diffs(table, from, to, i - 1, j, diffs);
+        //diffs.push(format!("- {}", from[i - 1]));
+        diffs.push("-".to_string());
+    }
+}
+
+
+#[allow(dead_code)]
+//pub fn diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+//				    from: &'a [T], 
+//				    to: &'a [T],
+//				    i: usize,
+//				    j: usize,
+//				    empty: &mut Vec<String>) {
+  //  
+ //
+ //   if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
+ //       diff(table, from, to, i - 1, j - 1, empty);
+ //       check_diff(empty);
+  //      empty.push("n".to_string());
+  //  } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
+ //       diff(table, from, to, i, j - 1, empty);
+ //       empty.push("+".to_string());
+  //  } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
+  //      diff(table, from, to, i - 1, j, empty);
+ //       empty.push("-".to_string());
+ //  }
+
+  //  if i == from.len() && j == to.len() && !empty.is_empty(){ //if last edit was add or delete
+  //      check_diff(empty);
+  //  }
+//}
+
+//checks to see which diff item to add
+
 
 /// Build a longest common subsequence table (necessary for creating the diff)
 pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
@@ -148,8 +212,6 @@ pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
         print_diff(table, from, to, i - 1, j);
         println!("- {}", from[i - 1]);
     }
-
-    
 }
 
 
