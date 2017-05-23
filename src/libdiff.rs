@@ -48,6 +48,10 @@ impl <'a, T: 'a + PartialEq> DiffIterator<'a, T>{
 //     }
 // }
 
+
+///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
+///Uses convert to diffitems to make diffitems based off vec of edits 
+///TO DO have diff_init return DiffIterator?
 pub fn diff_init<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
                                               from: &'a [T],
                                               to: &'a [T]){
@@ -55,14 +59,16 @@ pub fn diff_init<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
     let mut diffs: Vec<String> = vec![];
     make_diffs(table, from, to, from.len(), to.len(), &mut diffs);
 
-    convert_to_diffitems(to, from, &mut diffs, );
+    convert_to_diffitems(to, from, &mut diffs);
     
 }
 
-
+//Converts vec of edits to make diffitems. For now prints out results
+///TO DO have function return a diffiterator. have check_diff return diffitem, 
+///and then store it in the diffiterator.
 pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
                                               to: &'a [T],
-                                              diffs: &mut Vec<String>){
+                                              diffs: &mut Vec<String>) //->DiffIterator?{
     let mut i = 0;
     let mut j = 0;
     let mut edit_tracker: Vec<String> = vec![];
@@ -71,19 +77,13 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
     let mut holder = 1;
     let length = diffs.len();
     for edit in diffs{
-        
+
         edit_tracker.push(edit.clone());
         
         if *edit == "s".to_string() {
-            //check_diff(&mut edit_tracker, &s1, &s2, &i, &j);
-            
             if i > 0 && j > 0{
-                check_diff(&mut edit_tracker, &s1, &s2, &i, &j);
-                //println!("{} , {}", s1,i);
-
-                //println!("{} , {}",s2,j);
-            }
-            
+                check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to);
+            }   
             i += 1;
             j += 1;
             s1 = i+1;
@@ -93,66 +93,56 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
         else if *edit == "-".to_string(){
             i += 1;
             if holder == length{
-                check_diff(&mut edit_tracker, &s1, &s2, &i, &j);
-                //println!("{} , {}", s1,i);
-                //println!("{} , {}",s2,j);
-            
-            }
-            
+                check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to);    
+            }     
         }
 
         else if *edit == "+".to_string(){
             j += 1;
             if holder == length{
-                check_diff(&mut edit_tracker, &s1, &s2, &i, &j);
-                //println!("{} , {}", s1,i);
-                //println!("{} , {}",s2,j);
-
-            
-            }
-            
+                check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to);
+            } 
         }
-        //println!("{}",edit);
-        
-        holder += 1;
-       
+        holder += 1;  
     }
-
-    //check_diff(&mut edit_tracker);
-
-    //println!("{},{}",i - s1 + 1,i);
-    //println!("{},{}",j- s2 + 1,j);
-
-
-    //for x in edit_tracker{
-    //    println!("{}",x);
-    //}
-
 }
-    
-pub fn check_diff(edit_tracker: &mut Vec<String>, s1: &usize,
+
+///Finds out information about diff and converts to diffitem. For now it just prints info
+///TO DO make and return DiffItem at end of each if block  
+pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>, s1: &usize,
                                                   s2: &usize,
                                                   i: &usize,
-                                                  j: &usize) {
-
+                                                  j: &usize,
+                                                  from: &'a [T],
+                                                  to: &'a [T]){ //-> DiffItem?{
 
     if !edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()){
         println!{"{},{}d{}",s1,i,j};
+        for x in *s1-1..*i{
+            println!("< {}",to[x]);
+        }
         edit_tracker.drain(..);
-        
-
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()){
         println!("{}a{},{}",i,s2,j);
+        for x in *s2-1..*j{
+            println!("> {}",from[x]);
+        }
         edit_tracker.drain(..);
-        
-        
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()){ 
         println!("{},{}c{},{}",s1,i,s2,j);
+        for x in *s1-1..*i{
+            println!("< {}",to[x]);
+        }
+        println!("-----------");
+        for y in *s2-1..*j{
+            println!("> {}",from[y]);
+        }
         edit_tracker.drain(..);
     }
 
 }
 
+///Builds array with s for same, + for add, - for delete
 pub fn make_diffs<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
                                               from: &'a [T],
                                               to: &'a [T],
@@ -162,48 +152,15 @@ pub fn make_diffs<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         make_diffs(table, from, to, i - 1, j - 1, diffs);
-        //diffs.push(format!("s {}", from[i - 1]));
         diffs.push("s".to_string());
     } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
         make_diffs(table, from, to, i, j - 1, diffs);
-        //diffs.push(format!("+ {}", to[j - 1]));
         diffs.push("+".to_string());
     } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
         make_diffs(table, from, to, i - 1, j, diffs);
-        //diffs.push(format!("- {}", from[i - 1]));
         diffs.push("-".to_string());
     }
 }
-
-
-#[allow(dead_code)]
-//pub fn diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
-//				    from: &'a [T], 
-//				    to: &'a [T],
-//				    i: usize,
-//				    j: usize,
-//				    empty: &mut Vec<String>) {
-  //  
- //
- //   if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
- //       diff(table, from, to, i - 1, j - 1, empty);
- //       check_diff(empty);
-  //      empty.push("n".to_string());
-  //  } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
- //       diff(table, from, to, i, j - 1, empty);
- //       empty.push("+".to_string());
-  //  } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
-  //      diff(table, from, to, i - 1, j, empty);
- //       empty.push("-".to_string());
- //  }
-
-  //  if i == from.len() && j == to.len() && !empty.is_empty(){ //if last edit was add or delete
-  //      check_diff(empty);
-  //  }
-//}
-
-//checks to see which diff item to add
-
 
 /// Build a longest common subsequence table (necessary for creating the diff)
 pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
