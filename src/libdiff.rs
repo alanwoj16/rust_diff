@@ -28,13 +28,12 @@ impl<'a, T: 'a + PartialEq> DiffIterator<'a, T> {
 ///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
 ///Uses convert to diffitems to make diffitems based off vec of edits
 ///TO DO have diff_init return DiffIterator?
-pub fn diff_init<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>, from: &'a [T], to: &'a [T]) {
-
+pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>> {
+    let mut table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
-    make_diffs(table, from, to, from.len(), to.len(), &mut diffs);
+    make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
 
-    convert_to_diffitems(to, from, &mut diffs);
-
+    convert_to_diffitems(to, from, &mut diffs)
 }
 
 //Converts vec of edits to make diffitems. For now prints out results
