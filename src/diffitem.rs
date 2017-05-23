@@ -34,9 +34,9 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 end_doc2,
                 lines,
             } => {
-                write!(f, "{}a{},{}", start_doc1, start_doc2, end_doc2).unwrap();
+                writeln!(f, "{}a{},{}", start_doc1, start_doc2, end_doc2).unwrap();
                 for line in lines {
-                    write!(f, "> {}", line).unwrap();
+                    writeln!(f, "> {}", line).unwrap();
                 }
             }
             // DELETE
@@ -46,9 +46,9 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 start_doc2,
                 lines,
             } => {
-                write!(f, "{},{}d{}", start_doc2, start_doc1, end_doc1).unwrap();
+                writeln!(f, "{},{}d{}", start_doc2, start_doc1, end_doc1).unwrap();
                 for line in lines {
-                    write!(f, "< {}", line).unwrap();
+                    writeln!(f, "< {}", line).unwrap();
                 }
             }
             // CHANGE
@@ -60,13 +60,13 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 from,
                 to,
             } => {
-                write!(f, "{},{}c{},{}", start_doc1, end_doc1, start_doc2, end_doc2).unwrap();
+                writeln!(f, "{},{}c{},{}", start_doc1, end_doc1, start_doc2, end_doc2).unwrap();
                 for line in from {
-                    write!(f, "< {}", line).unwrap();
+                    writeln!(f, "< {}", line).unwrap();
                 }
-                write!(f, "-----------").unwrap();
+                writeln!(f, "-----------").unwrap();
                 for line in to {
-                    write!(f, "> {}", line).unwrap();
+                    writeln!(f, "> {}", line).unwrap();
                 }
             }
             DiffItem::Holder => {}
