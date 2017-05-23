@@ -34,7 +34,12 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 end_doc2,
                 lines,
             } => {
-                writeln!(f, "{}a{},{}", start_doc1, start_doc2, end_doc2).unwrap();
+                if lines.len() > 1 {
+                    writeln!(f, "{}a{},{}", start_doc1, start_doc2, end_doc2).unwrap();
+                } else {
+                    writeln!(f, "{}a{}", start_doc1, start_doc2).unwrap();
+
+                }
                 for line in lines {
                     writeln!(f, "> {}", line).unwrap();
                 }
@@ -46,7 +51,13 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 start_doc2,
                 lines,
             } => {
-                writeln!(f, "{},{}d{}", start_doc2, start_doc1, end_doc1).unwrap();
+                if start_doc1 == end_doc1 {
+                    writeln!(f, "{}d{}", start_doc1, start_doc2).unwrap();
+
+                } else {
+                    writeln!(f, "{},{}d{}", start_doc1, end_doc1, start_doc2).unwrap();
+
+                }
                 for line in lines {
                     writeln!(f, "< {}", line).unwrap();
                 }
@@ -60,7 +71,11 @@ impl<'a, T: 'a + PartialEq + Display> Display for DiffItem<'a, T> {
                 from,
                 to,
             } => {
-                writeln!(f, "{},{}c{},{}", start_doc1, end_doc1, start_doc2, end_doc2).unwrap();
+                if from.len() > 1 {
+                    writeln!(f, "{},{}c{},{}", start_doc1, end_doc1, start_doc2, end_doc2).unwrap();
+                } else {
+                    writeln!(f, "{}c{}", start_doc1, start_doc2).unwrap();
+                }
                 for line in from {
                     writeln!(f, "< {}", line).unwrap();
                 }

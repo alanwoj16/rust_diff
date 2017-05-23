@@ -98,16 +98,16 @@ pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
         return Some(DiffItem::Delete {
                         start_doc1: *s1,
                         end_doc1: *i,
-                        start_doc2: *s2,
-                        lines: &to[*s1..*i],
+                        start_doc2: *s2 - 1,
+                        lines: &to[*s1 - 1..*i],
                     });
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Add {
-                        start_doc1: *s1,
+                        start_doc1: *s1 - 1,
                         start_doc2: *s2,
-                        end_doc2: *j,
-                        lines: &from[*s2..*j],
+                        end_doc2: *j + 1,
+                        lines: &from[*s2 - 1..*j],
                     });
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
@@ -116,8 +116,8 @@ pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
                         start_doc2: *s2,
                         end_doc1: *i,
                         end_doc2: *j,
-                        from: &from[*s1..*j],
-                        to: &to[*s2..*i],
+                        from: &from[*s1 - 1..*j],
+                        to: &to[*s2 - 1..*i],
                     });
     } else {
         return Some(DiffItem::Holder);

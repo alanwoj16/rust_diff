@@ -21,7 +21,7 @@ fn main() {
     //print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
     let diffs = diff(&lines_a, &lines_b);
     for diff in diffs {
-        println!("{}", diff);
+        print!("{}", diff);
     }
 }
 
