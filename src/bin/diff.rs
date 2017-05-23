@@ -1,5 +1,6 @@
 extern crate libdiff;
-use libdiff::{build_lcs_table, print_diff};
+#[allow(unused_imports)]
+use libdiff::{build_lcs_table, print_diff,diff};
 use std::io::{Read, BufReader, BufRead};
 use std::env;
 use std::fs::File;
@@ -19,9 +20,10 @@ fn main() {
 
     let table = build_lcs_table(&lines_a, &lines_b);
     let mut empty: Vec<String> = Vec::new();
-    libdiff::diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len(), &mut empty);
+    print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
+    diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len(), &mut empty);
 
-    println!("{:?}", empty);
+    //println!("{:?}", empty);
 }
 
 /// Read from a reader to a Vec<String> of lines
