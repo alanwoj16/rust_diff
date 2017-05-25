@@ -39,7 +39,7 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
 
         if *edit == "s".to_string() {
             if i > 0 && j > 0 {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s1, s2, i, j, from, to).unwrap());
             }
             i += 1;
             j += 1;
@@ -49,12 +49,12 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
         } else if *edit == "-".to_string() {
             i += 1;
             if holder == length {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s1, s2, i, j, from, to).unwrap());
             }
         } else if *edit == "+".to_string() {
             j += 1;
             if holder == length {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s1, s2, i, j, from, to).unwrap());
             }
         }
         holder += 1;
@@ -64,40 +64,40 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
 
 ///Finds out information about diff and converts to diffitem. For now it just prints info
 ///TO DO make and return DiffItem at end of each if block
-pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
-                                              s1: &usize,
-                                              s2: &usize,
-                                              i: &usize,
-                                              j: &usize,
-                                              from: &'a [T],
-                                              to: &'a [T])
-                                              -> Option<DiffItem<'a, T>> {
+fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
+                                          s1: usize,
+                                          s2: usize,
+                                          i: usize,
+                                          j: usize,
+                                          from: &'a [T],
+                                          to: &'a [T])
+                                          -> Option<DiffItem<'a, T>> {
 
     if !edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Delete {
-                        start_doc1: *s1,
-                        end_doc1: *i,
-                        start_doc2: *s2 - 1,
-                        lines: &to[*s1 - 1..*i],
+                        start_doc1: s1,
+                        end_doc1: i,
+                        start_doc2: s2 - 1,
+                        lines: &to[s1 - 1..i],
                     });
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Add {
-                        start_doc1: *s1 - 1,
-                        start_doc2: *s2,
-                        end_doc2: *j + 1,
-                        lines: &from[*s2 - 1..*j],
+                        start_doc1: s1 - 1,
+                        start_doc2: s2,
+                        end_doc2: j + 1,
+                        lines: &from[s2 - 1..j],
                     });
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Change {
-                        start_doc1: *s1,
-                        start_doc2: *s2,
-                        end_doc1: *i,
-                        end_doc2: *j,
-                        from: &from[*s1 - 1..*j],
-                        to: &to[*s2 - 1..*i],
+                        start_doc1: s1,
+                        start_doc2: s2,
+                        end_doc1: i,
+                        end_doc2: j,
+                        from: &from[s1 - 1..j],
+                        to: &to[s2 - 1..i],
                     });
     } else {
         return Some(DiffItem::Holder);
