@@ -24,12 +24,14 @@ impl<'a, T: 'a + PartialEq> DiffIterator<'a, T> {
 //     }
 // }
 
+type LCSTable = Vec<Vec<usize>>;
 
 ///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
 ///Uses convert to diffitems to make diffitems based off vec of edits
 ///TO DO have diff_init return DiffIterator?
 pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>> {
     let mut table = build_lcs_table(from, to);
+    let table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
 
@@ -126,7 +128,7 @@ pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
 }
 
 ///Builds array with s for same, + for add, - for delete
-pub fn make_diffs<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+pub fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
                                               from: &'a [T],
                                               to: &'a [T],
                                               i: usize,
@@ -146,8 +148,8 @@ pub fn make_diffs<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
 }
 
 /// Build a longest common subsequence table (necessary for creating the diff)
-pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<usize>> {
-    let mut table: Vec<Vec<usize>> = Vec::with_capacity(from.len() + 1);
+pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
+    let mut table: LCSTable = Vec::with_capacity(from.len() + 1);
     // could probably do this with iterators or map()
     for i in 0..from.len() + 1 {
         table.push(Vec::with_capacity(to.len() + 1));
@@ -168,7 +170,7 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> Vec<Vec<
 }
 
 // Prints a diff given two slices and the corresponding LCS table
-pub fn print_diff<'a, T: PartialEq + Display>(table: &Vec<Vec<usize>>,
+pub fn print_diff<'a, T: PartialEq + Display>(table: &LCSTable,
                                               from: &'a [T],
                                               to: &'a [T],
                                               i: usize,
