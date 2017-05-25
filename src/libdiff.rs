@@ -1,5 +1,5 @@
 use std::cmp;
-use std::fmt::Display;
+use std::fmt::{Display, Debug};
 pub mod diffitem;
 use diffitem::DiffItem;
 
