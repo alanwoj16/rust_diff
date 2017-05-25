@@ -3,34 +3,12 @@ use std::fmt::Display;
 pub mod diffitem;
 use diffitem::DiffItem;
 
-#[allow(dead_code)]
-struct DiffIterator<'a, T: 'a + PartialEq> {
-    items: &'a Vec<DiffItem<'a, T>>,
-}
-
-#[allow(dead_code)]
-impl<'a, T: 'a + PartialEq> DiffIterator<'a, T> {
-    fn new_from_list(diffitems: &'a Vec<DiffItem<'a, T>>) -> Self {
-
-        DiffIterator { items: diffitems }
-
-    }
-}
-
-// impl<'a, T> Iterator for DiffIterator<'a, T> {
-//     type Item = DiffItem<'a, T>;
-//     fn next(&mut self) ->Option<T> {
-
-//     }
-// }
-
 type LCSTable = Vec<Vec<usize>>;
 
 ///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
 ///Uses convert to diffitems to make diffitems based off vec of edits
 ///TO DO have diff_init return DiffIterator?
 pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>> {
-    let mut table = build_lcs_table(from, to);
     let table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
