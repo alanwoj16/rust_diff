@@ -1,5 +1,5 @@
 use std::cmp;
-use std::fmt::Display;
+use std::fmt::{Display, Debug};
 pub mod diffitem;
 use diffitem::DiffItem;
 
@@ -8,7 +8,7 @@ type LCSTable = Vec<Vec<usize>>;
 ///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
 ///Uses convert to diffitems to make diffitems based off vec of edits
 ///TO DO have diff_init return DiffIterator?
-pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>> {
+pub fn diff<'a, T: PartialEq + Display + Debug>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>> {
     let table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
@@ -19,10 +19,10 @@ pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffI
 //Converts vec of edits to make diffitems. For now prints out results
 ///TO DO have function return a diffiterator. have check_diff return diffitem,
 ///and then store it in the diffiterator.
-pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
-                                                        to: &'a [T],
-                                                        diffs: &mut Vec<String>)
-                                                        -> Vec<DiffItem<'a, T>> {
+fn convert_to_diffitems<'a, T: PartialEq + Display + Debug>(from: &'a [T],
+                                                    to: &'a [T],
+                                                    diffs: &mut Vec<String>)
+                                                    -> Vec<DiffItem<'a, T>> {
     //->DiffIterator?{
     let mut result: Vec<DiffItem<'a, T>> = Vec::new();
 
@@ -39,22 +39,21 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
 
         if *edit == "s".to_string() {
             if ind_from > 0 && ind_to > 0 {
-                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
             }
             ind_from += 1;
             ind_to += 1;
             s_from = ind_from + 1;
             s_to = ind_to + 1;
-
         } else if *edit == "-".to_string() {
             ind_from += 1;
             if num_diffs == diff_length {
-                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
             }
         } else if *edit == "+".to_string() {
             ind_to += 1;
             if num_diffs == diff_length {
-                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
+                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
             }
         }
         num_diffs += 1;
@@ -64,40 +63,40 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
 
 ///Finds out information about diff and converts to diffitem. For now it just prints info
 ///TO DO make and return DiffItem at end of each if block
-pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
-                                              s1: &usize,
-                                              s2: &usize,
-                                              i: &usize,
-                                              j: &usize,
-                                              from: &'a [T],
-                                              to: &'a [T])
-                                              -> Option<DiffItem<'a, T>> {
+fn check_diff<'a, T: PartialEq + Display + Debug>(edit_tracker: &mut Vec<String>,
+                                          s1: usize,
+                                          s2: usize,
+                                          i: usize,
+                                          j: usize,
+                                          from: &'a [T],
+                                          to: &'a [T])
+                                          -> Option<DiffItem<'a, T>> {
 
     if !edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Delete {
-                        start_doc1: *s1,
-                        end_doc1: *i,
-                        start_doc2: *s2 - 1,
-                        lines: &to[*s1 - 1..*i],
+                        start_doc1: s1,
+                        end_doc1: i,
+                        start_doc2: s2 - 1,
+                        lines: &to[s1 - 1..i],
                     });
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Add {
-                        start_doc1: *s1 - 1,
-                        start_doc2: *s2,
-                        end_doc2: *j + 1,
-                        lines: &from[*s2 - 1..*j],
+                        start_doc1: s1 - 1,
+                        start_doc2: s2,
+                        end_doc2: j + 1,
+                        lines: &from[s2 - 1..j],
                     });
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Change {
-                        start_doc1: *s1,
-                        start_doc2: *s2,
-                        end_doc1: *i,
-                        end_doc2: *j,
-                        from: &from[*s1 - 1..*j],
-                        to: &to[*s2 - 1..*i],
+                        start_doc1: s1,
+                        start_doc2: s2,
+                        end_doc1: i,
+                        end_doc2: j,
+                        from: &from[s1 - 1..j],
+                        to: &to[s2 - 1..i],
                     });
     } else {
         return Some(DiffItem::Holder);
@@ -106,12 +105,12 @@ pub fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
 }
 
 ///Builds array with s for same, + for add, - for delete
-pub fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
-                                              from: &'a [T],
-                                              to: &'a [T],
-                                              i: usize,
-                                              j: usize,
-                                              diffs: &mut Vec<String>) {
+fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
+                                          from: &'a [T],
+                                          to: &'a [T],
+                                          i: usize,
+                                          j: usize,
+                                          diffs: &mut Vec<String>) {
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         make_diffs(table, from, to, i - 1, j - 1, diffs);
@@ -126,7 +125,7 @@ pub fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
 }
 
 /// Build a longest common subsequence table (necessary for creating the diff)
-pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
+fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
     let mut table: LCSTable = Vec::with_capacity(from.len() + 1);
     // could probably do this with iterators or map()
     for i in 0..from.len() + 1 {
