@@ -1,7 +1,9 @@
 use std::fmt::{Display, Formatter, Error, Debug};
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum DiffItem<'a, T: 'a + PartialEq + Debug> {
+pub enum DiffItem<'a, T: 'a>
+    where T: PartialEq + Debug
+{
     Holder,
     Add {
         start_doc1: usize,
@@ -25,7 +27,9 @@ pub enum DiffItem<'a, T: 'a + PartialEq + Debug> {
     },
 }
 
-impl<'a, T: 'a + PartialEq + Debug + Display> Display for DiffItem<'a, T> {
+impl<'a, T: 'a> Display for DiffItem<'a, T>
+    where T: PartialEq + Debug + Display
+{
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match *self {
             // ADD
