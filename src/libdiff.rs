@@ -26,38 +26,38 @@ pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
     //->DiffIterator?{
     let mut result: Vec<DiffItem<'a, T>> = Vec::new();
 
-    let mut i = 0;
-    let mut j = 0;
+    let mut ind_from = 0; //index of from slice
+    let mut ind_to = 0; //index of to slice
     let mut edit_tracker: Vec<String> = vec![];
-    let mut s1 = 1;
-    let mut s2 = 1;
-    let mut holder = 1;
-    let length = diffs.len();
+    let mut s_from = 1; //index of last same line of from slice
+    let mut s_to = 1; //index of last same line of to slice
+    let mut num_diffs = 1;
+    let diff_length = diffs.len();
     for edit in diffs {
 
         edit_tracker.push(edit.clone());
 
         if *edit == "s".to_string() {
-            if i > 0 && j > 0 {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+            if ind_from > 0 && ind_to > 0 {
+                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
             }
-            i += 1;
-            j += 1;
-            s1 = i + 1;
-            s2 = j + 1;
+            ind_from += 1;
+            ind_to += 1;
+            s_from = ind_from + 1;
+            s_to = ind_to + 1;
 
         } else if *edit == "-".to_string() {
-            i += 1;
-            if holder == length {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+            ind_from += 1;
+            if num_diffs == diff_length {
+                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
             }
         } else if *edit == "+".to_string() {
-            j += 1;
-            if holder == length {
-                result.push(check_diff(&mut edit_tracker, &s1, &s2, &i, &j, from, to).unwrap());
+            ind_to += 1;
+            if num_diffs == diff_length {
+                result.push(check_diff(&mut edit_tracker, &s_from, &s_to, &ind_from, &ind_to, from, to).unwrap());
             }
         }
-        holder += 1;
+        num_diffs += 1;
     }
     result
 }
