@@ -19,10 +19,10 @@ pub fn diff<'a, T: PartialEq + Display>(from: &'a [T], to: &'a [T]) -> Vec<DiffI
 //Converts vec of edits to make diffitems. For now prints out results
 ///TO DO have function return a diffiterator. have check_diff return diffitem,
 ///and then store it in the diffiterator.
-pub fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
-                                                        to: &'a [T],
-                                                        diffs: &mut Vec<String>)
-                                                        -> Vec<DiffItem<'a, T>> {
+fn convert_to_diffitems<'a, T: PartialEq + Display>(from: &'a [T],
+                                                    to: &'a [T],
+                                                    diffs: &mut Vec<String>)
+                                                    -> Vec<DiffItem<'a, T>> {
     //->DiffIterator?{
     let mut result: Vec<DiffItem<'a, T>> = Vec::new();
 
@@ -106,12 +106,12 @@ fn check_diff<'a, T: PartialEq + Display>(edit_tracker: &mut Vec<String>,
 }
 
 ///Builds array with s for same, + for add, - for delete
-pub fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
-                                              from: &'a [T],
-                                              to: &'a [T],
-                                              i: usize,
-                                              j: usize,
-                                              diffs: &mut Vec<String>) {
+fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
+                                          from: &'a [T],
+                                          to: &'a [T],
+                                          i: usize,
+                                          j: usize,
+                                          diffs: &mut Vec<String>) {
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         make_diffs(table, from, to, i - 1, j - 1, diffs);
@@ -126,7 +126,7 @@ pub fn make_diffs<'a, T: PartialEq + Display>(table: &LCSTable,
 }
 
 /// Build a longest common subsequence table (necessary for creating the diff)
-pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
+fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
     let mut table: LCSTable = Vec::with_capacity(from.len() + 1);
     // could probably do this with iterators or map()
     for i in 0..from.len() + 1 {
