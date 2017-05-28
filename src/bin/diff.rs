@@ -1,6 +1,6 @@
 extern crate libdiff;
 #[allow(unused_imports)]
-use libdiff::diff;
+use libdiff::{diff,patch};
 use std::io::{Read, BufReader, BufRead};
 use std::env;
 use std::fs::File;
@@ -19,10 +19,19 @@ fn main() {
     let lines_b = read_lines(BufReader::new(file_b));
 
     //print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
+    
     let diffs = diff(&lines_a, &lines_b);
-    for diff in diffs {
-        print!("{}", diff);
+
+    for diff in &diffs {
+        print!("{}", *diff);
     }
+
+    //let changes = patch(&lines_a, &diffs[0]);
+
+    //println!("{:?}",changes);
+
+
+
 }
 
 /// Read from a reader to a Vec<String> of lines

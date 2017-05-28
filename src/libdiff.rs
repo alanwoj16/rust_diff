@@ -14,8 +14,7 @@ pub fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>>
     let table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
-
-    convert_to_diffitems(to, from, &mut diffs)
+    convert_to_diffitems(from, to, &mut diffs)
 }
 
 //Converts vec of edits to make diffitems. For now prints out results
@@ -37,6 +36,7 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
     let mut s_to = 1; //index of last same line of to slice
     let mut num_diffs = 1;
     let diff_length = diffs.len();
+
     for edit in diffs {
 
         edit_tracker.push(edit.clone());
@@ -101,8 +101,8 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         start_doc2: s2,
                         end_doc1: i,
                         end_doc2: j,
-                        from: &from[s1 - 1..j],
-                        to: &to[s2 - 1..i],
+                        from: &from[s1 - 1..i],
+                        to: &to[s2 - 1..j],
                     });
     } else {
         return Some(DiffItem::Holder);
@@ -169,4 +169,33 @@ pub fn print_diff<'a, T>(table: &LCSTable, from: &'a [T], to: &'a [T], i: usize,
         print_diff(table, from, to, i - 1, j);
         println!("- {}", from[i - 1]);
     }
+}
+
+pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T> 
+    where T: Clone + Debug + PartialEq 
+{
+    let mut changes: Vec<T> = Vec::new();
+
+    match *diff{
+        DiffItem::Change {start_doc1, end_doc1, start_doc2, end_doc2, from, to} =>{ 
+            changes = input[0..start_doc1-1].to_vec();
+            for i in from{
+                changes.push(i.clone());
+            }
+        }
+
+        DiffItem::Add {start_doc1, start_doc2, end_doc2, lines} => {
+            changes = input[0..start_doc1].to_vec();
+            for i in lines{
+                changes.push(i.clone());
+            }
+        }
+        DiffItem::Delete {start_doc1, end_doc1, start_doc2, lines} => {
+            changes = input[0..start_doc1-1].to_vec();
+        }
+        _ => println!("Not valid Diffitem"),
+    }
+
+    changes
+
 }
