@@ -84,7 +84,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         start_doc1: s1,
                         end_doc1: i,
                         start_doc2: s2 - 1,
-                        lines: &to[s1 - 1..i],
+                        lines: &from[s1 - 1..i],
                     });
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
         edit_tracker.drain(..);
@@ -92,7 +92,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         start_doc1: s1 - 1,
                         start_doc2: s2,
                         end_doc2: j + 1,
-                        lines: &from[s2 - 1..j],
+                        lines: &to[s2 - 1..j],
                     });
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
@@ -179,7 +179,7 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
     match *diff{
         DiffItem::Change {start_doc1, end_doc1, start_doc2, end_doc2, from, to} =>{ 
             changes = input[0..start_doc1-1].to_vec();
-            for i in from{
+            for i in to{
                 changes.push(i.clone());
             }
         }

@@ -19,16 +19,16 @@ fn main() {
     let lines_b = read_lines(BufReader::new(file_b));
 
     //print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
-    
+
     let diffs = diff(&lines_a, &lines_b);
 
     for diff in &diffs {
         print!("{}", *diff);
     }
 
-    //let changes = patch(&lines_a, &diffs[0]);
+    let changes = patch(&lines_a, &diffs[0]);
 
-    //println!("{:?}",changes);
+    println!("{:?}",changes);
 
 
 
