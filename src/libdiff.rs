@@ -213,7 +213,6 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
                 changes.push(input[i].clone());
             }
         }
-        _ => println!("Not valid Diffitem"),
     }
 
     changes
@@ -262,6 +261,5 @@ pub fn pretty_print<'a, String> (original: &'a [String],  diff: &DiffItem<String
                 println!("{}", original[h]);
             }      
         }
-        _ => println!("Not valid Diffitem"),
     }
 }    
