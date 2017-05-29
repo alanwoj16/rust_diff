@@ -1,30 +1,65 @@
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
 extern crate colored;
 use colored::*;
 use std::cmp;
 use std::fmt::{Display, Debug};
+
 pub mod diffitem;
 use diffitem::DiffItem;
 
+/// A type alias for a longest common subsequence table
 type LCSTable = Vec<Vec<usize>>;
 
-///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
-///Uses convert to diffitems to make diffitems based off vec of edits
-///TO DO have diff_init return DiffIterator?
+#[derive(Debug, PartialEq, Clone)]
+enum EditFlags {
+    Add,
+    Delete,
+    Same,
+}
+impl ToString for EditFlags {
+    fn to_string(&self) -> String {
+        match self {
+            &EditFlags::Add => "+".to_string(),
+            &EditFlags::Delete => "-".to_string(),
+            &EditFlags::Same => "s".to_string(),
+        }
+    }
+}
+
+/// Calculate a diff. Takes in two slices and returns a Vec<DiffItem>
+/// containing the changes necessary to make "from" look like "to"
+///
+/// # Examples
+/// ```
+/// use libdiff::diff;
+///
+/// let from = vec!["this", "is", "an", "example"];
+/// let to = vec!["this", "is", "another", "example"];
+/// let diffs = diff(&from, &to);
+/// ```
 pub fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>>
     where T: PartialEq + Display + Debug
 {
     let table = build_lcs_table(from, to);
-    let mut diffs: Vec<String> = vec![];
+    let mut diffs: Vec<_> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
     convert_to_diffitems(from, to, &diffs)
 }
 
-//Converts vec of edits to make diffitems. For now prints out results
-///TO DO have function return a diffiterator. have check_diff return diffitem,
-///and then store it in the diffiterator.
+// Helper function to convert a vec of
 fn convert_to_diffitems<'a, T>(from: &'a [T],
                                to: &'a [T],
-                               diffs: &Vec<String>)
+                               diffs: &Vec<EditFlags>)
                                -> Vec<DiffItem<'a, T>>
     where T: PartialEq + Display + Debug
 {
@@ -33,7 +68,7 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
 
     let mut ind_from = 0; //index of from slice
     let mut ind_to = 0; //index of to slice
-    let mut edit_tracker: Vec<String> = vec![];
+    let mut edit_tracker: Vec<EditFlags> = vec![];
     let mut s_from = 1; //index of last same line of from slice
     let mut s_to = 1; //index of last same line of to slice
     let mut num_diffs = 1;
@@ -43,31 +78,35 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
 
         edit_tracker.push(edit.clone());
 
-        if *edit == "s".to_string() {
-            if ind_from > 0 && ind_to > 0 {
-                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
-                    Some(x) => result.push(x),
-                    None => {}
+        match edit {
+            &EditFlags::Same => {
+                if ind_from > 0 && ind_to > 0 {
+                    match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                        Some(x) => result.push(x),
+                        None => {}
+                    }
+                }
+                ind_from += 1;
+                ind_to += 1;
+                s_from = ind_from + 1;
+                s_to = ind_to + 1;
+            }
+            &EditFlags::Delete => {
+                ind_from += 1;
+                if num_diffs == diff_length {
+                    match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                        Some(x) => result.push(x),
+                        None => {}
+                    }
                 }
             }
-            ind_from += 1;
-            ind_to += 1;
-            s_from = ind_from + 1;
-            s_to = ind_to + 1;
-        } else if *edit == "-".to_string() {
-            ind_from += 1;
-            if num_diffs == diff_length {
-                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
-                    Some(x) => result.push(x),
-                    None => {}
-                }
-            }
-        } else if *edit == "+".to_string() {
-            ind_to += 1;
-            if num_diffs == diff_length {
-                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
-                    Some(x) => result.push(x),
-                    None => {}
+            &EditFlags::Add => {
+                ind_to += 1;
+                if num_diffs == diff_length {
+                    match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                        Some(x) => result.push(x),
+                        None => {}
+                    }
                 }
             }
         }
@@ -78,7 +117,7 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
 
 ///Finds out information about diff and converts to diffitem. For now it just prints info
 ///TO DO make and return DiffItem at end of each if block
-fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
+fn check_diff<'a, T>(edit_tracker: &mut Vec<EditFlags>,
                      s1: usize,
                      s2: usize,
                      i: usize,
@@ -89,7 +128,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
     where T: PartialEq + Display + Debug
 {
 
-    if !edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
+    if !edit_tracker.contains(&EditFlags::Add) && edit_tracker.contains(&EditFlags::Delete) {
         edit_tracker.drain(..);
         return Some(DiffItem::Delete {
                         start_from: s1,
@@ -97,7 +136,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         start_to: s2 - 1,
                         items: &from[s1 - 1..i],
                     });
-    } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
+    } else if !edit_tracker.contains(&EditFlags::Delete) && edit_tracker.contains(&EditFlags::Add) {
         edit_tracker.drain(..);
         return Some(DiffItem::Add {
                         start_from: s1 - 1,
@@ -105,7 +144,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         end_to: j + 1,
                         items: &to[s2 - 1..j],
                     });
-    } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
+    } else if edit_tracker.contains(&EditFlags::Add) && edit_tracker.contains(&EditFlags::Delete) {
         edit_tracker.drain(..);
         return Some(DiffItem::Replace {
                         start_from: s1,
@@ -127,19 +166,19 @@ fn make_diffs<'a, T>(table: &LCSTable,
                      to: &'a [T],
                      i: usize,
                      j: usize,
-                     diffs: &mut Vec<String>)
+                     diffs: &mut Vec<EditFlags>)
     where T: PartialEq + Display + Debug
 {
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         make_diffs(table, from, to, i - 1, j - 1, diffs);
-        diffs.push("s".to_string());
+        diffs.push(EditFlags::Same);
     } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
         make_diffs(table, from, to, i, j - 1, diffs);
-        diffs.push("+".to_string());
+        diffs.push(EditFlags::Add);
     } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
         make_diffs(table, from, to, i - 1, j, diffs);
-        diffs.push("-".to_string());
+        diffs.push(EditFlags::Delete);
     }
 }
 
@@ -226,10 +265,14 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
                 println!("{}", original[i]);
             }
             for j in from {
-                println!("{} {}", "-".red(), j.to_string().clone().red());
+                println!("{} {}",
+                         EditFlags::Delete.to_string().red(),
+                         j.to_string().clone().red());
             }
             for k in to {
-                println!("{} {}", "+".green(), k.to_string().clone().green());
+                println!("{} {}",
+                         EditFlags::Add.to_string().green(),
+                         k.to_string().clone().green());
             }
             for h in end_from..from.len() {
                 println!("{}", original[h]);
@@ -240,7 +283,9 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
                 println!("{}", original[i]);
             }
             for j in items {
-                println!("{} {}", "+".green(), j.to_string().clone().green());
+                println!("{} {}",
+                         EditFlags::Add.to_string().green(),
+                         j.to_string().clone().green());
             }
             for h in start_from..original.len() {
                 println!("{}", original[h]);
@@ -256,7 +301,9 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
                 println!("{}", original[i]);
             }
             for j in items {
-                println!("{} {}", "-".red(), j.to_string().clone().red());
+                println!("{} {}",
+                         EditFlags::Delete.to_string().red(),
+                         j.to_string().clone().red());
             }
             for h in end_from..original.len() {
                 println!("{}", original[h]);
@@ -283,9 +330,9 @@ mod test {
         let a = vec![1, 2, 3];
         let b = vec![1, 5, 3];
         let table = build_lcs_table(&a, &b);
-        let mut diffs: Vec<String> = vec![];
+        let mut diffs: Vec<_> = vec![];
         make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
-        let expected = vec!["s".to_string(), "-".to_string(), "+".to_string(), "s".to_string()];
+        let expected = vec![EditFlags::Same, EditFlags::Delete, EditFlags::Add, EditFlags::Same];
         assert_eq!(diffs, expected);
     }
 
@@ -294,7 +341,7 @@ mod test {
         let a = vec![1, 2, 3];
         let b = vec![1, 5, 3];
         let table = build_lcs_table(&a, &b);
-        let mut diffs: Vec<String> = vec![];
+        let mut diffs: Vec<_> = vec![];
         make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
         let diffitems = convert_to_diffitems(&a, &b, &diffs);
         let from = [2];
@@ -315,7 +362,7 @@ mod test {
         let a = vec![1, 2, 3];
         let b = vec![1, 3, 4];
         let table = build_lcs_table(&a, &b);
-        let mut diffs: Vec<String> = vec![];
+        let mut diffs: Vec<_> = vec![];
         make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
         let diffitems = convert_to_diffitems(&a, &b, &diffs);
         let del = [2];
