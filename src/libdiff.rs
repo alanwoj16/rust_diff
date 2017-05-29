@@ -170,6 +170,7 @@ fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
 pub fn print_diff<'a, T>(table: &LCSTable, from: &'a [T], to: &'a [T], i: usize, j: usize)
     where T: PartialEq + Display + Debug
 {
+    let mut changes: Vec<T>;
 
     if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
         print_diff(table, from, to, i - 1, j - 1);
@@ -186,7 +187,6 @@ pub fn print_diff<'a, T>(table: &LCSTable, from: &'a [T], to: &'a [T], i: usize,
 pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T> 
     where T: Clone + Debug + PartialEq 
 {
-    let mut changes: Vec<T> = Vec::new();
 
     match *diff{
         DiffItem::Change {start_doc1, end_doc1, to, ..} =>{ 
