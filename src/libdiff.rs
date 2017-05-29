@@ -92,26 +92,26 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
     if !edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Delete {
-                        start_doc1: s1,
-                        end_doc1: i,
-                        start_doc2: s2 - 1,
-                        lines: &from[s1 - 1..i],
+                        start_from: s1,
+                        end_from: i,
+                        start_to: s2 - 1,
+                        items: &from[s1 - 1..i],
                     });
     } else if !edit_tracker.contains(&"-".to_string()) && edit_tracker.contains(&"+".to_string()) {
         edit_tracker.drain(..);
         return Some(DiffItem::Add {
-                        start_doc1: s1 - 1,
-                        start_doc2: s2,
-                        end_doc2: j + 1,
-                        lines: &to[s2 - 1..j],
+                        start_from: s1 - 1,
+                        start_to: s2,
+                        end_to: j + 1,
+                        items: &to[s2 - 1..j],
                     });
     } else if edit_tracker.contains(&"+".to_string()) && edit_tracker.contains(&"-".to_string()) {
         edit_tracker.drain(..);
-        return Some(DiffItem::Change {
-                        start_doc1: s1,
-                        start_doc2: s2,
-                        end_doc1: i,
-                        end_doc2: j,
+        return Some(DiffItem::Replace {
+                        start_from: s1,
+                        start_to: s2,
+                        end_from: i,
+                        end_to: j,
                         from: &from[s1 - 1..i],
                         to: &to[s2 - 1..j],
                     });
@@ -171,43 +171,42 @@ pub fn patch<'a, T>(input: &[T], diff: &DiffItem<T>) -> Vec<T>
     let mut changes: Vec<T>;
 
     match *diff {
-        DiffItem::Change {
-            start_doc1,
-            end_doc1,
+        DiffItem::Replace {
+            start_from,
+            end_from,
             to,
             ..
         } => {
-            changes = input[0..start_doc1 - 1].to_vec();
+            changes = input[0..start_from - 1].to_vec();
             for i in to {
                 changes.push(i.clone());
             }
-            for j in end_doc1..input.len() {
+            for j in end_from..input.len() {
                 changes.push(input[j].clone());
             }
         }
-        DiffItem::Add { start_doc1, lines, .. } => {
-            changes = input[0..start_doc1].to_vec();
-            for i in lines {
+        DiffItem::Add { start_from, items, .. } => {
+            changes = input[0..start_from].to_vec();
+            for i in items {
                 changes.push(i.clone());
             }
-            for j in start_doc1..input.len() {
+            for j in start_from..input.len() {
                 changes.push(input[j].clone());
             }
         }
         DiffItem::Delete {
-            start_doc1,
-            end_doc1,
+            start_from,
+            end_from,
             ..
         } => {
-            changes = input[0..start_doc1 - 1].to_vec();
-            for i in end_doc1..input.len() {
+            changes = input[0..start_from - 1].to_vec();
+            for i in end_from..input.len() {
                 changes.push(input[i].clone());
             }
         }
     }
 
     changes
-
 }
 
 pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
@@ -215,15 +214,15 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
 {
     println!("How to make file1 like file 2:");
     match *diff {
-        DiffItem::Change {
-            start_doc1,
-            end_doc1,
+        DiffItem::Replace {
+            start_from,
+            end_from,
             from,
             to,
             ..
         } => {
 
-            for i in 0..start_doc1 - 1 {
+            for i in 0..start_from - 1 {
                 println!("{}", original[i]);
             }
             for j in from {
@@ -232,34 +231,34 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
             for k in to {
                 println!("{} {}", "+".green(), k.to_string().clone().green());
             }
-            for h in end_doc1..from.len() {
+            for h in end_from..from.len() {
                 println!("{}", original[h]);
             }
         }
-        DiffItem::Add { start_doc1, lines, .. } => {
-            for i in 0..start_doc1 {
+        DiffItem::Add { start_from, items, .. } => {
+            for i in 0..start_from {
                 println!("{}", original[i]);
             }
-            for j in lines {
+            for j in items {
                 println!("{} {}", "+".green(), j.to_string().clone().green());
             }
-            for h in start_doc1..original.len() {
+            for h in start_from..original.len() {
                 println!("{}", original[h]);
             }
         }
         DiffItem::Delete {
-            start_doc1,
-            end_doc1,
-            lines,
+            start_from,
+            end_from,
+            items,
             ..
         } => {
-            for i in 0..start_doc1 - 1 {
+            for i in 0..start_from - 1 {
                 println!("{}", original[i]);
             }
-            for j in lines {
+            for j in items {
                 println!("{} {}", "-".red(), j.to_string().clone().red());
             }
-            for h in end_doc1..original.len() {
+            for h in end_from..original.len() {
                 println!("{}", original[h]);
             }
         }
@@ -291,7 +290,7 @@ mod test {
     }
 
     #[test]
-    fn test_convert_to_diffitems_change() {
+    fn test_convert_to_diffitems_replace() {
         let a = vec![1, 2, 3];
         let b = vec![1, 5, 3];
         let table = build_lcs_table(&a, &b);
@@ -300,11 +299,11 @@ mod test {
         let diffitems = convert_to_diffitems(&a, &b, &diffs);
         let from = [2];
         let to = [5];
-        let expected = vec![DiffItem::Change {
-                                start_doc1: 2,
-                                start_doc2: 2,
-                                end_doc1: 2,
-                                end_doc2: 2,
+        let expected = vec![DiffItem::Replace {
+                                start_from: 2,
+                                start_to: 2,
+                                end_from: 2,
+                                end_to: 2,
                                 from: &from,
                                 to: &to,
                             }];
@@ -322,16 +321,16 @@ mod test {
         let del = [2];
         let add = [4];
         let expected = vec![DiffItem::Delete {
-                                start_doc1: 2,
-                                end_doc1: 2,
-                                start_doc2: 1,
-                                lines: &del,
+                                start_from: 2,
+                                end_from: 2,
+                                start_to: 1,
+                                items: &del,
                             },
                             DiffItem::Add {
-                                start_doc1: 3,
-                                start_doc2: 3,
-                                end_doc2: 4,
-                                lines: &add,
+                                start_from: 3,
+                                start_to: 3,
+                                end_to: 4,
+                                items: &add,
                             }];
         assert_eq!(diffitems, expected);
     }
@@ -344,16 +343,16 @@ mod test {
         let del = ["2"];
         let add = ["4"];
         let expected = vec![DiffItem::Delete {
-                                start_doc1: 2,
-                                end_doc1: 2,
-                                start_doc2: 1,
-                                lines: &del,
+                                start_from: 2,
+                                end_from: 2,
+                                start_to: 1,
+                                items: &del,
                             },
                             DiffItem::Add {
-                                start_doc1: 3,
-                                start_doc2: 3,
-                                end_doc2: 4,
-                                lines: &add,
+                                start_from: 3,
+                                start_to: 3,
+                                end_to: 4,
+                                items: &add,
                             }];
         assert_eq!(diffitems, expected);
     }
@@ -381,30 +380,30 @@ mod test {
         let add2 = " dog";
         let diffitems = diff(&a.as_bytes(), &b.as_bytes());
         let expected = vec![DiffItem::Delete {
-                                start_doc1: 4,
-                                end_doc1: 4,
-                                start_doc2: 3,
-                                lines: &del.as_bytes(),
+                                start_from: 4,
+                                end_from: 4,
+                                start_to: 3,
+                                items: &del.as_bytes(),
                             },
                             DiffItem::Add {
-                                start_doc1: 21,
-                                start_doc2: 21,
-                                end_doc2: 22,
-                                lines: &add.as_bytes(),
+                                start_from: 21,
+                                start_to: 21,
+                                end_to: 22,
+                                items: &add.as_bytes(),
                             },
-                            DiffItem::Change {
-                                start_doc1: 33,
-                                start_doc2: 33,
-                                end_doc1: 35,
-                                end_doc2: 35,
+                            DiffItem::Replace {
+                                start_from: 33,
+                                start_to: 33,
+                                end_from: 35,
+                                end_to: 35,
                                 from: &from.as_bytes(),
                                 to: &to.as_bytes(),
                             },
                             DiffItem::Add {
-                                start_doc1: 40,
-                                start_doc2: 41,
-                                end_doc2: 45,
-                                lines: &add2.as_bytes(),
+                                start_from: 40,
+                                start_to: 41,
+                                end_to: 45,
+                                items: &add2.as_bytes(),
                             }];
         assert_eq!(diffitems, expected);
     }

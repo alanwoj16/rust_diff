@@ -1,27 +1,46 @@
 use std::fmt::{Display, Formatter, Error, Debug};
 
+/// The DiffItem enum. Represents an edit action (either Add, Delete, or Replace)
+/// Contains the necessary information to make the corresponding change to a slice.
 #[derive(Debug, PartialEq, Eq)]
 pub enum DiffItem<'a, T: 'a>
     where T: PartialEq + Debug
 {
+    /// Represents an insertion edit
     Add {
-        start_doc1: usize,
-        start_doc2: usize,
-        end_doc2: usize,
-        lines: &'a [T],
+        /// The index at which to insert the new items in the "from" slice
+        start_from: usize,
+        /// The starting index of the new items in the "to" slice
+        start_to: usize,
+        /// The ending index of the new items in the "to" slice
+        end_to: usize,
+        /// The items to be inserted
+        items: &'a [T],
     },
+    /// Represents a deletion edit
     Delete {
-        start_doc1: usize,
-        end_doc1: usize,
-        start_doc2: usize,
-        lines: &'a [T],
+        /// The starting index of the items to delete from the "from" slice
+        start_from: usize,
+        /// The ending index of the items to delete from the "from" slice
+        end_from: usize,
+        /// The index in "to" that corresponds to "start_from"
+        start_to: usize,
+        /// The items to be deleted
+        items: &'a [T],
     },
-    Change {
-        start_doc1: usize,
-        end_doc1: usize,
-        start_doc2: usize,
-        end_doc2: usize,
+    /// Represents a replacement edit
+    Replace {
+        /// The starting index of the items to replace from the "from" slice
+        start_from: usize,
+        /// The ending index of the items to replace from the "from" slice
+        end_from: usize,
+        /// The starting index of the items to replace from the "to" slice
+        start_to: usize,
+        /// The ending index of the items to replace from the "to" slice
+        end_to: usize,
+        /// The lines that will be replaced in "from"
         from: &'a [T],
+        /// The replacement lines from "to"
         to: &'a [T],
     },
 }
@@ -33,59 +52,59 @@ impl<'a, T: 'a> Display for DiffItem<'a, T>
         match *self {
             // ADD
             DiffItem::Add {
-                start_doc1,
-                start_doc2,
-                end_doc2,
-                lines,
+                start_from,
+                start_to,
+                end_to,
+                items,
             } => {
-                if lines.len() > 1 {
-                    writeln!(f, "{}a{},{}", start_doc1, start_doc2, end_doc2).unwrap();
+                if items.len() > 1 {
+                    writeln!(f, "{}a{},{}", start_from, start_to, end_to).unwrap();
                 } else {
-                    writeln!(f, "{}a{}", start_doc1, start_doc2).unwrap();
+                    writeln!(f, "{}a{}", start_from, start_to).unwrap();
 
                 }
-                for line in lines {
-                    writeln!(f, "> {}", line).unwrap();
+                for item in items {
+                    writeln!(f, "> {}", item).unwrap();
                 }
             }
             // DELETE
             DiffItem::Delete {
-                start_doc1,
-                end_doc1,
-                start_doc2,
-                lines,
+                start_from,
+                end_from,
+                start_to,
+                items,
             } => {
-                if start_doc1 == end_doc1 {
-                    writeln!(f, "{}d{}", start_doc1, start_doc2).unwrap();
+                if start_from == end_from {
+                    writeln!(f, "{}d{}", start_from, start_to).unwrap();
 
                 } else {
-                    writeln!(f, "{},{}d{}", start_doc1, end_doc1, start_doc2).unwrap();
+                    writeln!(f, "{},{}d{}", start_from, end_from, start_to).unwrap();
 
                 }
-                for line in lines {
-                    writeln!(f, "< {}", line).unwrap();
+                for item in items {
+                    writeln!(f, "< {}", item).unwrap();
                 }
             }
-            // CHANGE
-            DiffItem::Change {
-                start_doc1,
-                start_doc2,
-                end_doc1,
-                end_doc2,
+            // Replace
+            DiffItem::Replace {
+                start_from,
+                start_to,
+                end_from,
+                end_to,
                 from,
                 to,
             } => {
                 if from.len() > 1 {
-                    writeln!(f, "{},{}c{},{}", start_doc1, end_doc1, start_doc2, end_doc2).unwrap();
+                    writeln!(f, "{},{}c{},{}", start_from, end_from, start_to, end_to).unwrap();
                 } else {
-                    writeln!(f, "{}c{}", start_doc1, start_doc2).unwrap();
+                    writeln!(f, "{}c{}", start_from, start_to).unwrap();
                 }
-                for line in from {
-                    writeln!(f, "< {}", line).unwrap();
+                for item in from {
+                    writeln!(f, "< {}", item).unwrap();
                 }
                 writeln!(f, "-----------").unwrap();
-                for line in to {
-                    writeln!(f, "> {}", line).unwrap();
+                for item in to {
+                    writeln!(f, "> {}", item).unwrap();
                 }
             }
         }
