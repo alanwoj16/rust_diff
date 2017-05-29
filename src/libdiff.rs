@@ -370,4 +370,42 @@ mod test {
         assert_eq!(patched, vec!["1", "2", "3", "4"]);
     }
 
+    #[test]
+    fn test_diff_longer() {
+        let a = "the quick brown fox jumped over the lazy dog";
+        let b = "thequick brown fox juumped over and lazy dog dog";
+        let del = " ";
+        let add = "u";
+        let from = "the";
+        let to = "and";
+        let add2 = " dog";
+        let diffitems = diff(&a.as_bytes(), &b.as_bytes());
+        let expected = vec![DiffItem::Delete {
+                                start_doc1: 4,
+                                end_doc1: 4,
+                                start_doc2: 3,
+                                lines: &del.as_bytes(),
+                            },
+                            DiffItem::Add {
+                                start_doc1: 21,
+                                start_doc2: 21,
+                                end_doc2: 22,
+                                lines: &add.as_bytes(),
+                            },
+                            DiffItem::Change {
+                                start_doc1: 33,
+                                start_doc2: 33,
+                                end_doc1: 35,
+                                end_doc2: 35,
+                                from: &from.as_bytes(),
+                                to: &to.as_bytes(),
+                            },
+                            DiffItem::Add {
+                                start_doc1: 40,
+                                start_doc2: 41,
+                                end_doc2: 45,
+                                lines: &add2.as_bytes(),
+                            }];
+        assert_eq!(diffitems, expected);
+    }
 }
