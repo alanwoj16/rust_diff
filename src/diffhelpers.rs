@@ -1,6 +1,7 @@
 use std::fmt::{Display, Debug};
 use diffitem::DiffItem;
 
+
 type LCSTable = Vec<Vec<usize>>;
 
 #[derive(Debug, PartialEq, Clone)]

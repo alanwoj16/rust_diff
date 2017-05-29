@@ -1,7 +1,7 @@
 /**
+ * libdiff.rs
  *
- *
- *
+ * A library for calculating the diff of two sequences
  *
  *
  *
@@ -43,9 +43,22 @@ pub fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>>
     convert_to_diffitems(from, to, &diffs)
 }
 
-
-pub fn patch<'a, T>(input: &[T], diff: &DiffItem<T>) -> Vec<T>
-    where T: Clone + Debug + PartialEq
+/// Applies an edit represented by a DiffItem to a slice.
+///
+/// # Example
+/// ```
+/// use diff::{diff, patch};
+///
+/// let from = vec!["this", "is", "an", "example"];
+/// let to = vec!["this", "is", "another", "example"];
+///
+/// let changes = diff(&from, &to);
+///
+/// // Apply the first edit:
+/// let patched = patch(&from, &changes[0]);
+/// ```
+pub fn patch<'a, T>(input: &[T], diff: &DiffItem<'a, T>) -> Vec<T>
+    where T: Clone + Debug + PartialEq + Display
 {
     let mut changes: Vec<T>;
 
@@ -106,7 +119,7 @@ pub fn pretty_print<'a, T, W>(mut writer: W, original: &'a [T], diff: &DiffItem<
     where T: Clone + Debug + PartialEq + Display,
           W: Write
 {
-    println!("How to make file1 like file 2:");
+    println!("How to make file 1 like file 2:");
     match *diff {
         DiffItem::Replace {
             start_from,
