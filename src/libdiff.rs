@@ -17,7 +17,7 @@ pub fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>>
     let table = build_lcs_table(from, to);
     let mut diffs: Vec<String> = vec![];
     make_diffs(&table, from, to, from.len(), to.len(), &mut diffs);
-    convert_to_diffitems(from, to, &mut diffs)
+    convert_to_diffitems(from, to, &diffs)
 }
 
 //Converts vec of edits to make diffitems. For now prints out results
@@ -25,7 +25,7 @@ pub fn diff<'a, T>(from: &'a [T], to: &'a [T]) -> Vec<DiffItem<'a, T>>
 ///and then store it in the diffiterator.
 fn convert_to_diffitems<'a, T>(from: &'a [T],
                                to: &'a [T],
-                               diffs: &mut Vec<String>)
+                               diffs: &Vec<String>)
                                -> Vec<DiffItem<'a, T>>
     where T: PartialEq + Display + Debug
 {
