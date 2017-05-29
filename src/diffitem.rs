@@ -4,7 +4,6 @@ use std::fmt::{Display, Formatter, Error, Debug};
 pub enum DiffItem<'a, T: 'a>
     where T: PartialEq + Debug
 {
-    Holder,
     Add {
         start_doc1: usize,
         start_doc2: usize,
@@ -89,7 +88,6 @@ impl<'a, T: 'a> Display for DiffItem<'a, T>
                     writeln!(f, "> {}", line).unwrap();
                 }
             }
-            DiffItem::Holder => {}
         }
         Ok(())
     }

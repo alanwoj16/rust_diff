@@ -46,7 +46,10 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
 
         if *edit == "s".to_string() {
             if ind_from > 0 && ind_to > 0 {
-                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
+                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                    Some(x) => result.push(x),
+                    None => {}
+                }
             }
             ind_from += 1;
             ind_to += 1;
@@ -55,12 +58,18 @@ fn convert_to_diffitems<'a, T>(from: &'a [T],
         } else if *edit == "-".to_string() {
             ind_from += 1;
             if num_diffs == diff_length {
-                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
+                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                    Some(x) => result.push(x),
+                    None => {}
+                }
             }
         } else if *edit == "+".to_string() {
             ind_to += 1;
             if num_diffs == diff_length {
-                result.push(check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to).unwrap());
+                match check_diff(&mut edit_tracker, s_from, s_to, ind_from, ind_to, from, to) {
+                    Some(x) => result.push(x),
+                    None => {}
+                }
             }
         }
         num_diffs += 1;
@@ -108,7 +117,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<String>,
                         to: &to[s2 - 1..j],
                     });
     } else {
-        return Some(DiffItem::Holder);
+        return None;
     }
 
 }
