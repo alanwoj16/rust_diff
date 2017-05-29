@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Color",""]],"mod":[["control",""]],"struct":[["ColoredString","Colored mean both color or styled"]],"trait":[["Colorize",""]]});
