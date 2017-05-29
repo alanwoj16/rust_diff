@@ -1,18 +1,24 @@
+/// diff.rs
+///
+/// A command line diff utility
+///
+/// Given two text files, prints out the differences between them
+/// and edit scripts to show how to make the first look like the second
+///
+/// Usage: diff from.txt to.txt
+///
+
 extern crate diff;
-use diff::{diff, pretty_print};
-use std::io::{Read, BufReader, BufRead, stdout};
+use diff::diff;
+use std::io::{Read, BufReader, BufRead};
 use std::env;
 use std::fs::File;
 
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    if args.len() < 3 {
+    if args.len() != 3 {
         panic!("diff requires two paths to text files as arguments");
-    }
-    let mut prettyprint = false;
-    if args.len() == 4 && args[3] == "--pretty-print" {
-        prettyprint = true;
     }
 
     let file_a = File::open(&args[1]).unwrap();
@@ -23,15 +29,11 @@ fn main() {
 
     let diffs = diff(&lines_a, &lines_b);
 
-    if prettyprint {
-        for diff in &diffs {
-            pretty_print(stdout(), &lines_a, &diff);
-        }
-    } else {
-        for diff in &diffs {
-            print!("{}", *diff);
-        }
+
+    for diff in &diffs {
+        print!("{}", *diff);
     }
+
 }
 
 /// Read from a reader to a Vec<String> of lines

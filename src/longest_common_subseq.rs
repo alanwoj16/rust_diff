@@ -6,7 +6,6 @@ type LCSTable = Vec<Vec<usize>>;
 #[allow(dead_code)]
 pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
     let mut table: LCSTable = Vec::with_capacity(from.len() + 1);
-    // could probably do this with iterators or map()
     for i in 0..from.len() + 1 {
         table.push(Vec::with_capacity(to.len() + 1));
         for _ in 0..to.len() + 1 {

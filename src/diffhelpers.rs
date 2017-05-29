@@ -4,6 +4,18 @@ use diffitem::DiffItem;
 
 type LCSTable = Vec<Vec<usize>>;
 
+/// Represents the status of a single item in the sequence.
+/// Used as an intermediate representation when calculating the diff
+///
+/// Example:
+///  from: A B C
+///  to: A D C
+///
+///  A -> Same
+///  B -> Delete
+///  D -> Add
+///  C -> Same
+///
 #[derive(Debug, PartialEq, Clone)]
 pub enum EditFlags {
     Add,
@@ -20,14 +32,14 @@ impl ToString for EditFlags {
     }
 }
 
-// Helper function to convert a vec of
+/// Helper function that converts a Vec<EditFlags> to a Vec<DiffItem>
+/// Merges consecutive adds/deletes into a single add, delete, or replace
 pub fn convert_to_diffitems<'a, T>(from: &'a [T],
                                    to: &'a [T],
                                    diffs: &Vec<EditFlags>)
                                    -> Vec<DiffItem<'a, T>>
     where T: PartialEq + Display + Debug
 {
-    //->DiffIterator?{
     let mut result: Vec<DiffItem<'a, T>> = Vec::new();
 
     let mut ind_from = 0; //index of from slice
@@ -79,16 +91,16 @@ pub fn convert_to_diffitems<'a, T>(from: &'a [T],
     result
 }
 
-///Finds out information about diff and converts to diffitem. For now it just prints info
-///TO DO make and return DiffItem at end of each if block
-pub fn check_diff<'a, T>(edit_tracker: &mut Vec<EditFlags>,
-                         s1: usize,
-                         s2: usize,
-                         i: usize,
-                         j: usize,
-                         from: &'a [T],
-                         to: &'a [T])
-                         -> Option<DiffItem<'a, T>>
+/// Helper function for convert_to_diffitems
+/// Finds a single sequence of consecutive edits and merges them into one DiffItem
+fn check_diff<'a, T>(edit_tracker: &mut Vec<EditFlags>,
+                     s1: usize,
+                     s2: usize,
+                     i: usize,
+                     j: usize,
+                     from: &'a [T],
+                     to: &'a [T])
+                     -> Option<DiffItem<'a, T>>
     where T: PartialEq + Display + Debug
 {
 
@@ -124,7 +136,9 @@ pub fn check_diff<'a, T>(edit_tracker: &mut Vec<EditFlags>,
 
 }
 
-///Builds array with s for same, + for add, - for delete
+/// Find all the edits necessary to make "from" match "to"
+/// Every edited item is representated by an EditFlag.
+/// There may be multiple consecutive edits, use convert_to_diffitems to merge them.
 pub fn make_diffs<'a, T>(table: &LCSTable,
                          from: &'a [T],
                          to: &'a [T],

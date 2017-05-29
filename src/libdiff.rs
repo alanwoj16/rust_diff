@@ -1,13 +1,7 @@
-/**
- * libdiff.rs
- *
- * A library for calculating the diff of two sequences
- *
- *
- *
- *
- *
- */
+/// libdiff.rs
+///
+/// A library for calculating the diff of two sequences
+///
 
 extern crate colored;
 use colored::*;
