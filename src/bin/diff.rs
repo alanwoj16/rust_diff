@@ -1,5 +1,5 @@
-extern crate libdiff;
-use libdiff::{diff,patch, pretty_print};
+extern crate diff;
+use diff::{diff, patch, pretty_print};
 use std::io::{Read, BufReader, BufRead};
 use std::env;
 use std::fs::File;
@@ -27,10 +27,10 @@ fn main() {
 
     let changes = patch(&lines_a, &diffs[0]);
 
-    println!("{:?}",changes);
+    println!("{:?}", changes);
 
     for diff in &diffs {
-        pretty_print(&lines_a,  &diff);
+        pretty_print(&lines_a, &diff);
     }
 
 

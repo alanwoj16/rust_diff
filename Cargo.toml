@@ -4,12 +4,13 @@ version = "0.1.0"
 authors = ["Michael Donovan <michaeldonovan@u.northwestern.edu>", "Alan Wojciechowski <alanwojciechowski2017@u.northwestern.edu>"]
 
 [lib]
-name = "libdiff"
+name = "diff"
 path = "src/libdiff.rs"
 
 [[bin]]
 name = "diff"
 path = "src/bin/diff.rs"
+doc = false
 
 [dependencies]
 colored = "1.5.1"
