@@ -1,14 +1,18 @@
 extern crate diff;
-use diff::{diff, patch, pretty_print};
-use std::io::{Read, BufReader, BufRead};
+use diff::{diff, pretty_print};
+use std::io::{Read, BufReader, BufRead, stdout};
 use std::env;
 use std::fs::File;
 
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    if args.len() != 3 {
+    if args.len() < 3 {
         panic!("diff requires two paths to text files as arguments");
+    }
+    let mut prettyprint = false;
+    if args.len() == 4 && args[3] == "--pretty-print" {
+        prettyprint = true;
     }
 
     let file_a = File::open(&args[1]).unwrap();
@@ -17,23 +21,17 @@ fn main() {
     let lines_a = read_lines(BufReader::new(file_a));
     let lines_b = read_lines(BufReader::new(file_b));
 
-    //print_diff(&table, &lines_a, &lines_b, lines_a.len(), lines_b.len());
-
     let diffs = diff(&lines_a, &lines_b);
 
-    for diff in &diffs {
-        print!("{}", *diff);
+    if prettyprint {
+        for diff in &diffs {
+            pretty_print(stdout(), &lines_a, &diff);
+        }
+    } else {
+        for diff in &diffs {
+            print!("{}", *diff);
+        }
     }
-
-    let changes = patch(&lines_a, &diffs[0]);
-
-    println!("{:?}", changes);
-
-    for diff in &diffs {
-        pretty_print(&lines_a, &diff);
-    }
-
-
 }
 
 /// Read from a reader to a Vec<String> of lines

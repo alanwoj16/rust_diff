@@ -12,8 +12,11 @@
 extern crate colored;
 use colored::*;
 use std::fmt::{Display, Debug};
+use std::io::Write;
+
 mod diffhelpers;
 use diffhelpers::*;
+
 mod longest_common_subseq;
 use longest_common_subseq::build_lcs_table;
 
@@ -85,8 +88,23 @@ pub fn patch<'a, T>(input: &[T], diff: &DiffItem<T>) -> Vec<T>
     changes
 }
 
-pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
-    where String: Clone + Debug + PartialEq + Display
+/// Prints a colored representation of how to apply an edit to a sequence
+///
+/// # Example
+/// ```
+/// use diff::{diff, pretty_print};
+/// use std::io::stdout;
+///
+/// let from = vec!["this", "is", "an", "example"];
+/// let to = vec!["this", "is", "another", "example"];
+///
+/// let changes = diff(&from, &to);
+///
+/// pretty_print(stdout(), &from, &changes[0]);
+/// ```
+pub fn pretty_print<'a, T, W>(mut writer: W, original: &'a [T], diff: &DiffItem<'a, T>)
+    where T: Clone + Debug + PartialEq + Display,
+          W: Write
 {
     println!("How to make file1 like file 2:");
     match *diff {
@@ -99,33 +117,39 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
         } => {
 
             for i in 0..start_from - 1 {
-                println!("{}", original[i]);
+                writeln!(writer, "{}", original[i]).unwrap();
             }
             for j in from {
-                println!("{} {}",
+                writeln!(writer,
+                         "{} {}",
                          EditFlags::Delete.to_string().red(),
-                         j.to_string().clone().red());
+                         j.to_string().clone().red())
+                        .unwrap();
             }
             for k in to {
-                println!("{} {}",
+                writeln!(writer,
+                         "{} {}",
                          EditFlags::Add.to_string().green(),
-                         k.to_string().clone().green());
+                         k.to_string().clone().green())
+                        .unwrap();
             }
             for h in end_from..from.len() {
-                println!("{}", original[h]);
+                writeln!(writer, "{}", original[h]).unwrap();
             }
         }
         DiffItem::Add { start_from, items, .. } => {
             for i in 0..start_from {
-                println!("{}", original[i]);
+                writeln!(writer, "{}", original[i]).unwrap();
             }
             for j in items {
-                println!("{} {}",
+                writeln!(writer,
+                         "{} {}",
                          EditFlags::Add.to_string().green(),
-                         j.to_string().clone().green());
+                         j.to_string().clone().green())
+                        .unwrap();
             }
             for h in start_from..original.len() {
-                println!("{}", original[h]);
+                writeln!(writer, "{}", original[h]).unwrap();
             }
         }
         DiffItem::Delete {
@@ -135,15 +159,17 @@ pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
             ..
         } => {
             for i in 0..start_from - 1 {
-                println!("{}", original[i]);
+                writeln!(writer, "{}", original[i]).unwrap();
             }
             for j in items {
-                println!("{} {}",
+                writeln!(writer,
+                         "{} {}",
                          EditFlags::Delete.to_string().red(),
-                         j.to_string().clone().red());
+                         j.to_string().clone().red())
+                        .unwrap();
             }
             for h in end_from..original.len() {
-                println!("{}", original[h]);
+                writeln!(writer, "{}", original[h]).unwrap();
             }
         }
     }
