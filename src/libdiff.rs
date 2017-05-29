@@ -5,7 +5,6 @@ use std::fmt::{Display, Debug};
 pub mod diffitem;
 use diffitem::DiffItem;
 
-
 type LCSTable = Vec<Vec<usize>>;
 
 ///Initializes diff process. runs make_diffs to get vec of edits (s,+,-)
@@ -166,50 +165,42 @@ fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable {
     table
 }
 
-// Prints a diff given two slices and the corresponding LCS table
-pub fn print_diff<'a, T>(table: &LCSTable, from: &'a [T], to: &'a [T], i: usize, j: usize)
-    where T: PartialEq + Display + Debug
+pub fn patch<'a, T>(input: &[T], diff: &DiffItem<T>) -> Vec<T>
+    where T: Clone + Debug + PartialEq
 {
     let mut changes: Vec<T>;
 
-    if i > 0 && j > 0 && from[i - 1] == to[j - 1] {
-        print_diff(table, from, to, i - 1, j - 1);
-        println!(" {}", from[i - 1]);
-    } else if j > 0 && (i == 0 || table[i][j - 1] >= table[i - 1][j]) {
-        print_diff(table, from, to, i, j - 1);
-        println!("+ {}", to[j - 1]);
-    } else if i > 0 && (j == 0 || table[i][j - 1] < table[i - 1][j]) {
-        print_diff(table, from, to, i - 1, j);
-        println!("- {}", from[i - 1]);
-    }
-}
-
-pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T> 
-    where T: Clone + Debug + PartialEq 
-{
-
-    match *diff{
-        DiffItem::Change {start_doc1, end_doc1, to, ..} =>{ 
-            changes = input[0..start_doc1-1].to_vec();
-            for i in to{
+    match *diff {
+        DiffItem::Change {
+            start_doc1,
+            end_doc1,
+            to,
+            ..
+        } => {
+            changes = input[0..start_doc1 - 1].to_vec();
+            for i in to {
                 changes.push(i.clone());
             }
-            for j in end_doc1..input.len(){
+            for j in end_doc1..input.len() {
                 changes.push(input[j].clone());
             }
         }
-        DiffItem::Add {start_doc1, lines, ..} => {
+        DiffItem::Add { start_doc1, lines, .. } => {
             changes = input[0..start_doc1].to_vec();
-            for i in lines{
+            for i in lines {
                 changes.push(i.clone());
             }
-            for j in start_doc1..input.len(){
+            for j in start_doc1..input.len() {
                 changes.push(input[j].clone());
             }
         }
-        DiffItem::Delete {start_doc1, end_doc1, ..} => {
-            changes = input[0..start_doc1-1].to_vec();
-            for i in end_doc1..input.len(){
+        DiffItem::Delete {
+            start_doc1,
+            end_doc1,
+            ..
+        } => {
+            changes = input[0..start_doc1 - 1].to_vec();
+            for i in end_doc1..input.len() {
                 changes.push(input[i].clone());
             }
         }
@@ -219,47 +210,164 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
 
 }
 
-pub fn pretty_print<'a, String> (original: &'a [String],  diff: &DiffItem<String>)
-    where String: Clone + Debug + PartialEq + Display 
+pub fn pretty_print<'a, String>(original: &'a [String], diff: &DiffItem<String>)
+    where String: Clone + Debug + PartialEq + Display
 {
     println!("How to make file1 like file 2:");
-    match *diff{
-        DiffItem::Change {start_doc1, end_doc1,from, to, ..} =>{
-            
-            for i in 0..start_doc1-1{
+    match *diff {
+        DiffItem::Change {
+            start_doc1,
+            end_doc1,
+            from,
+            to,
+            ..
+        } => {
+
+            for i in 0..start_doc1 - 1 {
                 println!("{}", original[i]);
             }
-            for j in from{
+            for j in from {
                 println!("{} {}", "-".red(), j.to_string().clone().red());
             }
-            for k in to{
+            for k in to {
                 println!("{} {}", "+".green(), k.to_string().clone().green());
             }
-            for h in end_doc1..from.len(){
+            for h in end_doc1..from.len() {
                 println!("{}", original[h]);
-            }       
+            }
         }
-        DiffItem::Add {start_doc1, lines, ..} => {
-            for i in 0..start_doc1{
+        DiffItem::Add { start_doc1, lines, .. } => {
+            for i in 0..start_doc1 {
                 println!("{}", original[i]);
             }
-            for j in lines{
+            for j in lines {
                 println!("{} {}", "+".green(), j.to_string().clone().green());
             }
-            for h in start_doc1..original.len(){
+            for h in start_doc1..original.len() {
                 println!("{}", original[h]);
-            }        
+            }
         }
-        DiffItem::Delete {start_doc1, end_doc1, lines, ..} => {
-            for i in 0..start_doc1-1{
+        DiffItem::Delete {
+            start_doc1,
+            end_doc1,
+            lines,
+            ..
+        } => {
+            for i in 0..start_doc1 - 1 {
                 println!("{}", original[i]);
             }
-            for j in lines{
+            for j in lines {
                 println!("{} {}", "-".red(), j.to_string().clone().red());
             }
-            for h in end_doc1..original.len(){
+            for h in end_doc1..original.len() {
                 println!("{}", original[h]);
-            }      
+            }
         }
     }
-}    
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_lcs_table() {
+        let a = vec![1, 2, 3];
+        let b = vec![1, 5, 3];
+        let table = build_lcs_table(&a, &b);
+        let expected = vec![vec![0, 0, 0, 0], vec![0, 1, 1, 0], vec![0, 1, 1, 0], vec![0, 0, 0, 0]];
+        assert_eq!(table, expected);
+    }
+
+    #[test]
+    fn test_make_diffs() {
+        let a = vec![1, 2, 3];
+        let b = vec![1, 5, 3];
+        let table = build_lcs_table(&a, &b);
+        let mut diffs: Vec<String> = vec![];
+        make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
+        let expected = vec!["s".to_string(), "-".to_string(), "+".to_string(), "s".to_string()];
+        assert_eq!(diffs, expected);
+    }
+
+    #[test]
+    fn test_convert_to_diffitems_change() {
+        let a = vec![1, 2, 3];
+        let b = vec![1, 5, 3];
+        let table = build_lcs_table(&a, &b);
+        let mut diffs: Vec<String> = vec![];
+        make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
+        let diffitems = convert_to_diffitems(&a, &b, &diffs);
+        let from = [2];
+        let to = [5];
+        let expected = vec![DiffItem::Change {
+                                start_doc1: 2,
+                                start_doc2: 2,
+                                end_doc1: 2,
+                                end_doc2: 2,
+                                from: &from,
+                                to: &to,
+                            }];
+        assert_eq!(diffitems, expected);
+    }
+
+    #[test]
+    fn test_convert_to_diffitems_add_delete() {
+        let a = vec![1, 2, 3];
+        let b = vec![1, 3, 4];
+        let table = build_lcs_table(&a, &b);
+        let mut diffs: Vec<String> = vec![];
+        make_diffs(&table, &a, &b, a.len(), b.len(), &mut diffs);
+        let diffitems = convert_to_diffitems(&a, &b, &diffs);
+        let del = [2];
+        let add = [4];
+        let expected = vec![DiffItem::Delete {
+                                start_doc1: 2,
+                                end_doc1: 2,
+                                start_doc2: 1,
+                                lines: &del,
+                            },
+                            DiffItem::Add {
+                                start_doc1: 3,
+                                start_doc2: 3,
+                                end_doc2: 4,
+                                lines: &add,
+                            }];
+        assert_eq!(diffitems, expected);
+    }
+
+    #[test]
+    fn test_diff_strings() {
+        let a = vec!["1", "2", "3"];
+        let b = vec!["1", "3", "4"];
+        let diffitems = diff(&a, &b);
+        let del = ["2"];
+        let add = ["4"];
+        let expected = vec![DiffItem::Delete {
+                                start_doc1: 2,
+                                end_doc1: 2,
+                                start_doc2: 1,
+                                lines: &del,
+                            },
+                            DiffItem::Add {
+                                start_doc1: 3,
+                                start_doc2: 3,
+                                end_doc2: 4,
+                                lines: &add,
+                            }];
+        assert_eq!(diffitems, expected);
+    }
+
+    #[test]
+    fn test_patch() {
+        let a = vec!["1", "2", "3"];
+        let b = vec!["1", "3", "4"];
+        let diffitems = diff(&a, &b);
+        let mut patched = patch(&a, &diffitems[0]);
+        assert_eq!(patched, vec!["1", "3"]);
+
+        patched = patch(&a, &diffitems[1]);
+        assert_eq!(patched, vec!["1", "2", "3", "4"]);
+    }
+
+}
