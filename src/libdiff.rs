@@ -180,10 +180,13 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
     let mut changes: Vec<T> = Vec::new();
 
     match *diff{
-        DiffItem::Change {start_doc1, to, ..} =>{ 
+        DiffItem::Change {start_doc1, end_doc1, to, ..} =>{ 
             changes = input[0..start_doc1-1].to_vec();
             for i in to{
                 changes.push(i.clone());
+            }
+            for j in end_doc1..input.len(){
+                changes.push(input[j].clone());
             }
         }
         DiffItem::Add {start_doc1, lines, ..} => {
@@ -191,9 +194,15 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
             for i in lines{
                 changes.push(i.clone());
             }
+            for j in start_doc1..input.len(){
+                changes.push(input[j].clone());
+            }
         }
-        DiffItem::Delete {start_doc1, ..} => {
+        DiffItem::Delete {start_doc1, end_doc1, ..} => {
             changes = input[0..start_doc1-1].to_vec();
+            for i in end_doc1..input.len(){
+                changes.push(input[i].clone());
+            }
         }
         _ => println!("Not valid Diffitem"),
     }
