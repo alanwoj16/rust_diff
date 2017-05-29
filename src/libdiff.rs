@@ -1,7 +1,10 @@
+extern crate colored;
+use colored::*;
 use std::cmp;
 use std::fmt::{Display, Debug};
 pub mod diffitem;
 use diffitem::DiffItem;
+
 
 type LCSTable = Vec<Vec<usize>>;
 
@@ -198,3 +201,49 @@ pub fn patch<'a, T> (input: &[T], diff: &DiffItem<T>) -> Vec<T>
     changes
 
 }
+
+pub fn pretty_print<'a, String> (original: &'a [String],  diff: &DiffItem<String>)
+    where String: Clone + Debug + PartialEq + Display 
+{
+    println!("How to make file1 like file 2:");
+    match *diff{
+        DiffItem::Change {start_doc1, end_doc1,from, to, ..} =>{
+            
+            for i in 0..start_doc1-1{
+                println!("{}", original[i]);
+            }
+            for j in from{
+                println!("{} {}", "-".red(), j.to_string().clone().red());
+            }
+            for k in to{
+                println!("{} {}", "+".green(), k.to_string().clone().green());
+            }
+            for h in end_doc1..from.len(){
+                println!("{}", original[h]);
+            }       
+        }
+        DiffItem::Add {start_doc1, lines, ..} => {
+            for i in 0..start_doc1{
+                println!("{}", original[i]);
+            }
+            for j in lines{
+                println!("{} {}", "+".green(), j.to_string().clone().green());
+            }
+            for h in start_doc1..original.len(){
+                println!("{}", original[h]);
+            }        
+        }
+        DiffItem::Delete {start_doc1, end_doc1, lines, ..} => {
+            for i in 0..start_doc1-1{
+                println!("{}", original[i]);
+            }
+            for j in lines{
+                println!("{} {}", "-".red(), j.to_string().clone().red());
+            }
+            for h in end_doc1..original.len(){
+                println!("{}", original[h]);
+            }      
+        }
+        _ => println!("Not valid Diffitem"),
+    }
+}    

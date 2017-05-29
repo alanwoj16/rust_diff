@@ -1,6 +1,5 @@
 extern crate libdiff;
-#[allow(unused_imports)]
-use libdiff::{diff,patch};
+use libdiff::{diff,patch, pretty_print};
 use std::io::{Read, BufReader, BufRead};
 use std::env;
 use std::fs::File;
@@ -30,6 +29,9 @@ fn main() {
 
     println!("{:?}",changes);
 
+    for diff in &diffs {
+        pretty_print(&lines_a,  &diff);
+    }
 
 
 }
