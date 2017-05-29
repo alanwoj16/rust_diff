@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `diff` crate.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, diff">
+    <meta name="description" content="API documentation for the Rust `control` mod in crate `colored`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, control">
 
-    <title>diff - Rust</title>
+    <title>colored::control - Rust</title>
 
-    <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="rustdoc.css">
-    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
     
 
     
@@ -29,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'>Crate diff</p><div class="block items"><ul><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'diff', ty: 'mod', relpath: ''};</script>
+        <p class='location'>Module control</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>colored</a></p><script>window.sidebarCurrent = {name: 'control', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -44,42 +44,42 @@
     </nav>
 
     <section id='main' class="content">
-<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>diff</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>colored</a>::<wbr><a class="mod" href=''>control</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href="/src/diff/libdiff.rs.html#1-327' title='goto source code'>[src]</a></span></h1>
-<h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+               </span><a class='srclink' href='../../src/colored/control.rs.html#2-255' title='goto source code'>[src]</a></span></h1>
+<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class="enum" href="diff/enum.DiffItem.html"
-                                  title='enum diff::DiffItem'>DiffItem</a></td>
+                           <td><a class="struct" href="struct.SHOULD_COLORIZE.html"
+                                  title='struct colored::control::SHOULD_COLORIZE'>SHOULD_COLORIZE</a></td>
                            <td class='docblock-short'>
-                                <p>The DiffItem enum. Represents an edit action (either Add, Delete, or Replace)
-Contains the necessary information to make the corresponding change to a slice.</p>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ShouldColorize.html"
+                                  title='struct colored::control::ShouldColorize'>ShouldColorize</a></td>
+                           <td class='docblock-short'>
+                                
                            </td>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class="fn" href="diff/fn.diff.html"
-                                  title='fn diff::diff'>diff</a></td>
+                           <td><a class="fn" href="fn.set_override.html"
+                                  title='fn colored::control::set_override'>set_override</a></td>
                            <td class='docblock-short'>
-                                <p>Calculate a diff. Takes in two slices and returns a Vec<DiffItem>
-containing the changes necessary to make &quot;from&quot; look like &quot;to&quot;</p>
+                                <p>Use this to force colored to ignore the environment and always/never colorize
+See example/control.rs</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class="fn" href="diff/fn.patch.html"
-                                  title='fn diff::patch'>patch</a></td>
+                           <td><a class="fn" href="fn.unset_override.html"
+                                  title='fn colored::control::unset_override'>unset_override</a></td>
                            <td class='docblock-short'>
-                                <p>Applies an edit represented by a DiffItem to a slice.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class="fn" href="diff/fn.pretty_print.html"
-                                  title='fn diff::pretty_print'>pretty_print</a></td>
-                           <td class='docblock-short'>
-                                <p>Prints a colored representation of how to apply an edit to a sequence</p>
+                                <p>Remove the manual override and let the environment decide if it&#39;s ok to colorize
+See example/control.rs</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
@@ -135,10 +135,10 @@ containing the changes necessary to make &quot;from&quot; look like &quot;to&quo
     
 
     <script>
-        window.rootPath = "";
-        window.currentCrate = "diff";
+        window.rootPath = "../../";
+        window.currentCrate = "colored";
     </script>
-    <script src="main.js"></script>
-    <script defer src="search-index.js"></script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>
