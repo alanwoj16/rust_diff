@@ -57,7 +57,7 @@ pub fn patch<'a, T>(input: &[T], diff: &DiffItem<'a, T>) -> Vec<T>
     let mut changes: Vec<T>;
 
     match *diff {
-        DiffItem::Replace {
+        DiffItem::Change {
             start_from,
             end_from,
             to,
@@ -115,7 +115,7 @@ pub fn pretty_print<'a, T, W>(mut writer: W, original: &'a [T], diff: &DiffItem<
 {
     println!("How to make file 1 like file 2:");
     match *diff {
-        DiffItem::Replace {
+        DiffItem::Change {
             start_from,
             end_from,
             from,
@@ -207,7 +207,7 @@ mod test {
     }
 
     #[test]
-    fn test_convert_to_diffitems_replace() {
+    fn test_convert_to_diffitems_Change() {
         let a = vec![1, 2, 3];
         let b = vec![1, 5, 3];
         let table = build_lcs_table(&a, &b);
@@ -216,7 +216,7 @@ mod test {
         let diffitems = convert_to_diffitems(&a, &b, &diffs);
         let from = [2];
         let to = [5];
-        let expected = vec![DiffItem::Replace {
+        let expected = vec![DiffItem::Change {
                                 start_from: 2,
                                 start_to: 2,
                                 end_from: 2,
@@ -308,7 +308,7 @@ mod test {
                                 end_to: 22,
                                 items: &add.as_bytes(),
                             },
-                            DiffItem::Replace {
+                            DiffItem::Change {
                                 start_from: 33,
                                 start_to: 33,
                                 end_from: 35,

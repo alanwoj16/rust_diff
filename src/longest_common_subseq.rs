@@ -1,4 +1,4 @@
-use std::cmp;
+use std::cmp::max;
 /// A type alias for a longest common subsequence table
 type LCSTable = Vec<Vec<usize>>;
 
@@ -12,12 +12,13 @@ pub fn build_lcs_table<'a, T: PartialEq>(from: &'a [T], to: &'a [T]) -> LCSTable
             table[i].push(0);
         }
     }
+
     for i in 1..from.len() {
         for j in 1..to.len() {
             if from[i - 1] == to[j - 1] {
                 table[i][j] = table[i - 1][j - 1] + 1;
             } else {
-                table[i][j] = cmp::max(table[i][j - 1], table[i - 1][j]);
+                table[i][j] = max(table[i][j - 1], table[i - 1][j]);
             }
         }
     }

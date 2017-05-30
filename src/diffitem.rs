@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Error, Debug};
 
-/// The DiffItem enum. Represents an edit action (either Add, Delete, or Replace)
+/// The DiffItem enum. Represents an edit action (either Add, Delete, or Change)
 /// Contains the necessary information to make the corresponding change to a slice.
 #[derive(Debug, PartialEq, Eq)]
 pub enum DiffItem<'a, T: 'a>
@@ -28,19 +28,19 @@ pub enum DiffItem<'a, T: 'a>
         /// The items to be deleted
         items: &'a [T],
     },
-    /// Represents a replacement edit
-    Replace {
-        /// The starting index of the items to replace from the "from" slice
+    /// Represents a change edit
+    Change {
+        /// The starting index of the items to Change from the "from" slice
         start_from: usize,
-        /// The ending index of the items to replace from the "from" slice
+        /// The ending index of the items to Change from the "from" slice
         end_from: usize,
-        /// The starting index of the items to replace from the "to" slice
+        /// The starting index of the items to Change from the "to" slice
         start_to: usize,
-        /// The ending index of the items to replace from the "to" slice
+        /// The ending index of the items to Change from the "to" slice
         end_to: usize,
-        /// The lines that will be replaced in "from"
+        /// The lines that will be Changed in "from"
         from: &'a [T],
-        /// The replacement lines from "to"
+        /// The change lines from "to"
         to: &'a [T],
     },
 }
@@ -85,8 +85,8 @@ impl<'a, T: 'a> Display for DiffItem<'a, T>
                     writeln!(f, "< {}", item).unwrap();
                 }
             }
-            // Replace
-            DiffItem::Replace {
+            // Change
+            DiffItem::Change {
                 start_from,
                 start_to,
                 end_from,

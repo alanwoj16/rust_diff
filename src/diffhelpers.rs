@@ -33,7 +33,7 @@ impl ToString for EditFlags {
 }
 
 /// Helper function that converts a Vec<EditFlags> to a Vec<DiffItem>
-/// Merges consecutive adds/deletes into a single add, delete, or replace
+/// Merges consecutive adds/deletes into a single add, delete, or Change
 pub fn convert_to_diffitems<'a, T>(from: &'a [T],
                                    to: &'a [T],
                                    diffs: &Vec<EditFlags>)
@@ -122,7 +122,7 @@ fn check_diff<'a, T>(edit_tracker: &mut Vec<EditFlags>,
                     });
     } else if edit_tracker.contains(&EditFlags::Add) && edit_tracker.contains(&EditFlags::Delete) {
         edit_tracker.drain(..);
-        return Some(DiffItem::Replace {
+        return Some(DiffItem::Change {
                         start_from: s1,
                         start_to: s2,
                         end_from: i,
