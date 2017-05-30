@@ -370,11 +370,79 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
 </pre><pre class="rust ">
 <span class="doccomment">/// libdiff.rs</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A library for calculating the diff of two sequences</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// Use diff(&amp;from, &amp;to) to generate a list of changes to make &quot;from&quot;</span>
+<span class="doccomment">/// match &quot;to&quot;.</span>
+<span class="doccomment">/// This edit script will be represented by a Vec&lt;DiffItem&gt;</span>
+<span class="doccomment">/// Where a DiffItem can be either an Add, Delete, or Change, and will containi</span>
+<span class="doccomment">/// the indices in each sequence where the edit occurs and the content of the edit.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Once an edit script has been generated, printing each item will produce output</span>
+<span class="doccomment">/// matching the unix diff utility.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// A patch function is also provided to apply the change specified by a single</span>
+<span class="doccomment">/// DiffItem to a sequence.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use diff::{diff, patch, pretty_print};</span>
+<span class="doccomment">/// use std::io::stdout;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let from = vec![&quot;this&quot;, &quot;is&quot;, &quot;an&quot;, &quot;example&quot;];</span>
+<span class="doccomment">/// let to = vec![&quot;this&quot;, &quot;is&quot;, &quot;another&quot;, &quot;example&quot;];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // generate the edit script</span>
+<span class="doccomment">/// let changes = diff(&amp;from, &amp;to);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // print the diff</span>
+<span class="doccomment">/// for edit in &amp;changes {</span>
+<span class="doccomment">///    print!(&quot;{}&quot;, *edit);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // apply the first edit in the script</span>
+<span class="doccomment">/// let patched = patch(&amp;from, &amp;changes[0]);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // print out a prettified representation of a single change</span>
+<span class="doccomment">/// pretty_print(stdout(), &amp;from, &amp;changes[0]);</span>
+<span class="doccomment">/// ```</span>
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">colored</span>;
 <span class="kw">use</span> <span class="ident">colored</span>::<span class="kw-2">*</span>;
@@ -580,7 +648,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_convert_to_diffitems_Change</span>() {
+    <span class="kw">fn</span> <span class="ident">test_convert_to_diffitems_change</span>() {
         <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">3</span>];
         <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">build_lcs_table</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>);

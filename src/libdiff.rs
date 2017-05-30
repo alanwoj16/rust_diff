@@ -2,6 +2,40 @@
 ///
 /// A library for calculating the diff of two sequences
 ///
+/// Use diff(&from, &to) to generate a list of changes to make "from"
+/// match "to".
+/// This edit script will be represented by a Vec<DiffItem>
+/// Where a DiffItem can be either an Add, Delete, or Change, and will containi
+/// the indices in each sequence where the edit occurs and the content of the edit.
+///
+/// Once an edit script has been generated, printing each item will produce output
+/// matching the unix diff utility.
+///
+/// A patch function is also provided to apply the change specified by a single
+/// DiffItem to a sequence.
+///
+/// # Example
+/// ```
+/// use diff::{diff, patch, pretty_print};
+/// use std::io::stdout;
+///
+/// let from = vec!["this", "is", "an", "example"];
+/// let to = vec!["this", "is", "another", "example"];
+///
+/// // generate the edit script
+/// let changes = diff(&from, &to);
+///
+/// // print the diff
+/// for edit in &changes {
+///    print!("{}", *edit);
+/// }
+///
+/// // apply the first edit in the script
+/// let patched = patch(&from, &changes[0]);
+///
+/// // print out a prettified representation of a single change
+/// pretty_print(stdout(), &from, &changes[0]);
+/// ```
 
 extern crate colored;
 use colored::*;
@@ -207,7 +241,7 @@ mod test {
     }
 
     #[test]
-    fn test_convert_to_diffitems_Change() {
+    fn test_convert_to_diffitems_change() {
         let a = vec![1, 2, 3];
         let b = vec![1, 5, 3];
         let table = build_lcs_table(&a, &b);
