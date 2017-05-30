@@ -147,7 +147,7 @@ pub fn pretty_print<'a, T, W>(mut writer: W, original: &'a [T], diff: &DiffItem<
     where T: Clone + Debug + PartialEq + Display,
           W: Write
 {
-    println!("How to make file 1 like file 2:");
+    //println!("How to make file 1 like file 2:");
     match *diff {
         DiffItem::Change {
             start_from,
