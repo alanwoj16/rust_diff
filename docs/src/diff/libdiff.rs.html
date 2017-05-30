@@ -430,7 +430,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">diff</span> {
-        <span class="ident">DiffItem</span>::<span class="ident">Replace</span> {
+        <span class="ident">DiffItem</span>::<span class="ident">Change</span> {
             <span class="ident">start_from</span>,
             <span class="ident">end_from</span>,
             <span class="ident">to</span>,
@@ -488,7 +488,7 @@
 {
     <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;How to make file 1 like file 2:&quot;</span>);
     <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">diff</span> {
-        <span class="ident">DiffItem</span>::<span class="ident">Replace</span> {
+        <span class="ident">DiffItem</span>::<span class="ident">Change</span> {
             <span class="ident">start_from</span>,
             <span class="ident">end_from</span>,
             <span class="ident">from</span>,
@@ -580,7 +580,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_convert_to_diffitems_replace</span>() {
+    <span class="kw">fn</span> <span class="ident">test_convert_to_diffitems_Change</span>() {
         <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">5</span>, <span class="number">3</span>];
         <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">build_lcs_table</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>);
@@ -589,7 +589,7 @@
         <span class="kw">let</span> <span class="ident">diffitems</span> <span class="op">=</span> <span class="ident">convert_to_diffitems</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>, <span class="kw-2">&amp;</span><span class="ident">diffs</span>);
         <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> [<span class="number">2</span>];
         <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> [<span class="number">5</span>];
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">DiffItem</span>::<span class="ident">Replace</span> {
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">DiffItem</span>::<span class="ident">Change</span> {
                                 <span class="ident">start_from</span>: <span class="number">2</span>,
                                 <span class="ident">start_to</span>: <span class="number">2</span>,
                                 <span class="ident">end_from</span>: <span class="number">2</span>,
@@ -681,7 +681,7 @@
                                 <span class="ident">end_to</span>: <span class="number">22</span>,
                                 <span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="ident">add</span>.<span class="ident">as_bytes</span>(),
                             },
-                            <span class="ident">DiffItem</span>::<span class="ident">Replace</span> {
+                            <span class="ident">DiffItem</span>::<span class="ident">Change</span> {
                                 <span class="ident">start_from</span>: <span class="number">33</span>,
                                 <span class="ident">start_to</span>: <span class="number">33</span>,
                                 <span class="ident">end_from</span>: <span class="number">35</span>,

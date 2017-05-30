@@ -159,7 +159,7 @@
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="ident">Error</span>, <span class="ident">Debug</span>};
 
-<span class="doccomment">/// The DiffItem enum. Represents an edit action (either Add, Delete, or Replace)</span>
+<span class="doccomment">/// The DiffItem enum. Represents an edit action (either Add, Delete, or Change)</span>
 <span class="doccomment">/// Contains the necessary information to make the corresponding change to a slice.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DiffItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span>
@@ -187,19 +187,19 @@
         <span class="doccomment">/// The items to be deleted</span>
         <span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>],
     },
-    <span class="doccomment">/// Represents a replacement edit</span>
-    <span class="ident">Replace</span> {
-        <span class="doccomment">/// The starting index of the items to replace from the &quot;from&quot; slice</span>
+    <span class="doccomment">/// Represents a change edit</span>
+    <span class="ident">Change</span> {
+        <span class="doccomment">/// The starting index of the items to Change from the &quot;from&quot; slice</span>
         <span class="ident">start_from</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// The ending index of the items to replace from the &quot;from&quot; slice</span>
+        <span class="doccomment">/// The ending index of the items to Change from the &quot;from&quot; slice</span>
         <span class="ident">end_from</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// The starting index of the items to replace from the &quot;to&quot; slice</span>
+        <span class="doccomment">/// The starting index of the items to Change from the &quot;to&quot; slice</span>
         <span class="ident">start_to</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// The ending index of the items to replace from the &quot;to&quot; slice</span>
+        <span class="doccomment">/// The ending index of the items to Change from the &quot;to&quot; slice</span>
         <span class="ident">end_to</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// The lines that will be replaced in &quot;from&quot;</span>
+        <span class="doccomment">/// The lines that will be Changed in &quot;from&quot;</span>
         <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>],
-        <span class="doccomment">/// The replacement lines from &quot;to&quot;</span>
+        <span class="doccomment">/// The change lines from &quot;to&quot;</span>
         <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>],
     },
 }
@@ -244,8 +244,8 @@
                     <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt; {}&quot;</span>, <span class="ident">item</span>).<span class="ident">unwrap</span>();
                 }
             }
-            <span class="comment">// Replace</span>
-            <span class="ident">DiffItem</span>::<span class="ident">Replace</span> {
+            <span class="comment">// Change</span>
+            <span class="ident">DiffItem</span>::<span class="ident">Change</span> {
                 <span class="ident">start_from</span>,
                 <span class="ident">start_to</span>,
                 <span class="ident">end_from</span>,

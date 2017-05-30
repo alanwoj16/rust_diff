@@ -70,7 +70,7 @@
 <span id="25">25</span>
 <span id="26">26</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">max</span>;
 <span class="doccomment">/// A type alias for a longest common subsequence table</span>
 <span class="kw">type</span> <span class="ident">LCSTable</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;&gt;</span>;
 
@@ -78,19 +78,19 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_lcs_table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span>(<span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>], <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>]) <span class="op">-&gt;</span> <span class="ident">LCSTable</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span>: <span class="ident">LCSTable</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">from</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>);
-    <span class="comment">// could probably do this with iterators or map()</span>
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">from</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
         <span class="ident">table</span>.<span class="ident">push</span>(<span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">to</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>));
         <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="ident">to</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
             <span class="ident">table</span>[<span class="ident">i</span>].<span class="ident">push</span>(<span class="number">0</span>);
         }
     }
+
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">from</span>.<span class="ident">len</span>() {
         <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">to</span>.<span class="ident">len</span>() {
             <span class="kw">if</span> <span class="ident">from</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">==</span> <span class="ident">to</span>[<span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>] {
                 <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">=</span> <span class="ident">table</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">+</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
-                <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>], <span class="ident">table</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="ident">j</span>]);
+                <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">=</span> <span class="ident">max</span>(<span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>], <span class="ident">table</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="ident">j</span>]);
             }
         }
     }
