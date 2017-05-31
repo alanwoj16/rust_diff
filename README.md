@@ -3,7 +3,7 @@ A diff library written in rust
 
 [**Documentation**](https://eecs395rust.github.io/rust-diff/)
 
-## Quickstart
+## Example Usage
 
 ### Calculate the diff
 ```Rust 
