@@ -174,7 +174,7 @@ pub fn pretty_print<'a, T, W>(mut writer: W, original: &'a [T], diff: &DiffItem<
                          k.to_string().clone().green())
                         .unwrap();
             }
-            for h in end_from..from.len() {
+            for h in end_from..original.len() {
                 writeln!(writer, "{}", original[h]).unwrap();
             }
         }
