@@ -8,9 +8,10 @@ name = "diff"
 path = "src/libdiff.rs"
 
 [[bin]]
-name = "diff"
+name = "rust-diff"
 path = "src/bin/diff.rs"
 doc = false
 
 [dependencies]
 colored = "1.5.1"
+

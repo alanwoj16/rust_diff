@@ -9,17 +9,16 @@
 ///
 
 extern crate diff;
-use diff::diff;
-use std::io::{Read, BufReader, BufRead};
+use diff::{diff, pretty_print};
+use std::io::{Read, BufReader, BufRead, stdout};
 use std::env;
 use std::fs::File;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    if args.len() != 3 {
+    if args.len() < 3 {
         panic!("diff requires two paths to text files as arguments");
     }
-
     let file_a = File::open(&args[1]).unwrap();
     let file_b = File::open(&args[2]).unwrap();
 
@@ -28,9 +27,17 @@ fn main() {
 
     let diffs = diff(&lines_a, &lines_b);
 
-
-    for diff in &diffs {
-        print!("{}", *diff);
+    if args.len() == 4 && args[3] == "--steps" {
+        let mut i = 0;
+        for diff in &diffs {
+            i += 1;
+            println!("\nEdit {}:", i);
+            pretty_print(stdout(), &lines_a, diff);
+        }
+    } else {
+        for diff in &diffs {
+            print!("{}", *diff);
+        }
     }
 
 }
